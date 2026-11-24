@@ -74,7 +74,7 @@ export default function Footer() {
 
           {/* Quick Links (Left Column on Mobile) */}
           <div className="col-span-1 space-y-4">
-            <h4 className="font-serif text-lg font-normal text-stone-900 tracking-wide">
+            <h4 className="font-serif text-lg font-medium text-[#FB1443] tracking-wide">
               Quick Links
             </h4>
             <ul className="space-y-2.5 text-xs text-stone-600">
@@ -125,7 +125,7 @@ export default function Footer() {
 
           {/* Gift Hampers (Right Column on Mobile, Static Text - Non Clickable) */}
           <div className="col-span-1 space-y-4">
-            <h4 className="font-serif text-lg font-normal text-stone-900 tracking-wide">
+            <h4 className="font-serif text-lg font-medium text-[#FB1443] tracking-wide">
               Gift Hampers
             </h4>
             <ul className="space-y-2.5 text-xs text-stone-600">
@@ -145,7 +145,7 @@ export default function Footer() {
 
           {/* Contact Details (Next Row on Mobile, under Quick Links) */}
           <div className="col-span-2 sm:col-span-1 space-y-4">
-            <h4 className="font-serif text-lg font-normal text-stone-900 tracking-wide">
+            <h4 className="font-serif text-lg font-medium text-[#FB1443] tracking-wide">
               Contact Us
             </h4>
             <p className="text-xs text-stone-600">
