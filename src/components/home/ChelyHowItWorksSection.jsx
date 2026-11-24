@@ -65,19 +65,16 @@ export default function ChelyHowItWorksSection() {
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
-        {/* Compact Heading (Clearance on mobile so corner decoration never overlaps) */}
-        <div className="text-center max-w-xl mx-auto mb-6 sm:mb-8 pt-5 sm:pt-0">
+        {/* Section Heading (Matching font size & weight of other sections, subtext removed) */}
+        <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-9 pt-5 sm:pt-0">
           <div className="relative inline-block">
-            <h2 className="font-serif text-2xl sm:text-3xl font-normal text-stone-900 leading-tight">
+            <h2 className="font-serif text-3xl sm:text-4xl md:text-[46px] font-normal text-stone-900 leading-[1.2] tracking-tight">
               How to customize your hamper
             </h2>
             <span className="absolute -top-2.5 -right-5 text-[#FFA6B6] text-xl font-bold select-none">
               ✦
             </span>
           </div>
-          <p className="text-stone-600 text-xs sm:text-sm font-sans mt-1">
-            4 simple steps to make your custom gift box
-          </p>
         </div>
 
         {/* 4 Super Compact Cards with Connecting Flow Arrows */}
@@ -108,7 +105,7 @@ export default function ChelyHowItWorksSection() {
                       <Icon className="w-3.5 h-3.5" />
                     </div>
 
-                    <h3 className="font-serif text-base sm:text-lg font-normal text-stone-900 leading-snug">
+                    <h3 className="font-serif text-sm sm:text-base font-light text-stone-800 leading-snug">
                       {item.title}
                     </h3>
                   </div>

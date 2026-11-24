@@ -61,19 +61,16 @@ export default function ChelyFAQSection() {
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
-        {/* Compact Heading (Clearance on mobile so corner decoration never overlaps) */}
-        <div className="text-center max-w-xl mx-auto mb-7 sm:mb-9 pt-5 sm:pt-0">
+        {/* Section Heading (Matching font size & weight of other sections, subtext removed) */}
+        <div className="text-center max-w-2xl mx-auto mb-7 sm:mb-9 pt-5 sm:pt-0">
           <div className="relative inline-block">
-            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-normal text-stone-900 leading-tight">
+            <h2 className="font-serif text-3xl sm:text-4xl md:text-[46px] font-normal text-stone-900 leading-[1.2] tracking-tight">
               Frequently asked questions
             </h2>
             <span className="absolute -top-2.5 -right-5 text-[#FFA6B6] text-xl font-bold select-none">
               ✦
             </span>
           </div>
-          <p className="text-stone-600 text-xs sm:text-sm font-sans mt-1.5">
-            Quick answers about custom hampers, quality, and delivery
-          </p>
         </div>
 
         {/* Compact Accordion List */}
@@ -95,7 +92,7 @@ export default function ChelyFAQSection() {
                   className="w-full py-3.5 px-4 sm:py-4 sm:px-5 text-left flex items-center justify-between gap-4 transition-colors"
                   aria-expanded={isOpen}
                 >
-                  <span className="font-serif text-base sm:text-lg font-normal text-stone-900 leading-snug">
+                  <span className="font-serif text-sm sm:text-base font-light text-stone-800 leading-snug">
                     {faq.question}
                   </span>
 
