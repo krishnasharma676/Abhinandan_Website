@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-cream: #FFFFFF;
+    --color-gold: #B8860B;
+    --color-burgundy: #5B1423;
+    --color-chocolate: #1C1917;
+  }
+
+  body {
+    background-color: #FAF9F6;
+    color: #1C1917;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, .font-serif {
+    font-family: 'Playfair Display', Georgia, serif;
+    letter-spacing: -0.015em;
+  }
+
+  .font-display {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F5F4F0;
+}
+::-webkit-scrollbar-thumb {
+  background: #C5A059;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #936B09;
+}
+
+/* Refined luxury glass styling */
+.glass-luxury {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(184, 134, 11, 0.2);
+}
+
+.gold-gradient-bg {
+  background: linear-gradient(135deg, #B8860B 0%, #D4AF37 50%, #936B09 100%);
+}
+
+/* Continuous Marquee Ticker for Announcement Bar */
+@keyframes topbarMarquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-topbar-marquee {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: topbarMarquee 28s linear infinite;
+}
+
+.animate-topbar-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Gentle Floating Bobbing Animation for Decorative Elements */
+@keyframes floatingBob {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(4deg);
+  }
+}
+
+.animate-float-bob {
+  animation: floatingBob 5s ease-in-out infinite;
+}
+
+/* Continuous Marquee for Instagram Feed Background (Chely Style) */
+@keyframes instafeedMarquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-instafeed-marquee {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: instafeedMarquee 38s linear infinite;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+
