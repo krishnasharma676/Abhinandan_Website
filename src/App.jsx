@@ -6,35 +6,56 @@ import AnnouncementBar from './components/layout/AnnouncementBar';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import ScrollProgress from './components/common/ScrollProgress';
-import PreloaderIntro from './components/common/PreloaderIntro';
 import MagneticCursor from './components/common/MagneticCursor';
 import HeroSection from './components/home/HeroSection';
 import ChelyProductsShowcase from './components/home/ChelyProductsShowcase';
-import StoryToJourneyStage from './components/home/StoryToJourneyStage';
 import ChelyCustomHamperBuilder from './components/home/ChelyCustomHamperBuilder';
+import StoryToJourneyStage from './components/home/StoryToJourneyStage';
 import ChelyHowItWorksSection from './components/home/ChelyHowItWorksSection';
 import ChelyInstagramStampFeed from './components/home/ChelyInstagramStampFeed';
-import ChelyFAQSection from './components/home/ChelyFAQSection';
 import ChelyNewsletterBanner from './components/home/ChelyNewsletterBanner';
 import LenisSectionTransition from './components/common/LenisSectionTransition';
 import { MessageCircle } from 'lucide-react';
 import { BRAND_CONFIG } from './config/brand';
 
 gsap.registerPlugin(ScrollTrigger);
+ScrollTrigger.config({ ignoreMobileResize: true });
+gsap.config({ force3D: true });
 
 export default function App() {
   useEffect(() => {
+    // Always open/refresh from the top Home Banner (disable browser mid-page scroll restoration)
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+    if (window.location.hash) {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+    window.scrollTo(0, 0);
+
+    const resetScrollOnUnload = () => {
+      window.scrollTo(0, 0);
+    };
+    window.addEventListener('beforeunload', resetScrollOnUnload);
+    window.addEventListener('pagehide', resetScrollOnUnload);
+
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reducedMotion) return;
+    if (reducedMotion) {
+      return () => {
+        window.removeEventListener('beforeunload', resetScrollOnUnload);
+        window.removeEventListener('pagehide', resetScrollOnUnload);
+      };
+    }
 
     const lenis = new Lenis({
-      duration: 1.15,
+      duration: 1.0,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
-      touchMultiplier: 1.5,
+      syncTouch: false,
     });
 
     window.__lenis = lenis;
+    lenis.scrollTo(0, { immediate: true });
 
     // Synchronize Lenis scroll with GSAP ScrollTrigger
     lenis.on('scroll', ScrollTrigger.update);
@@ -46,40 +67,12 @@ export default function App() {
     gsap.ticker.add(tickerFn);
     gsap.ticker.lagSmoothing(0);
 
-    // Refresh ScrollTrigger once images, preloader & fonts settle, and sync hash navigation if present
-    const syncTriggers = () => {
+    const refreshTriggers = () => {
       ScrollTrigger.refresh();
-      if (window.location.hash) {
-        if (window.location.hash === '#hampers') {
-          const heroTrigger = ScrollTrigger.getById('hero-stage');
-          if (heroTrigger) {
-            lenis.scrollTo(heroTrigger.end + 2, { immediate: true });
-            ScrollTrigger.update();
-            window.dispatchEvent(new Event('scroll'));
-            return;
-          }
-        }
-        if (window.location.hash === '#story') {
-          const storyTrigger = ScrollTrigger.getById('story-journey-stage');
-          if (storyTrigger) {
-            lenis.scrollTo(storyTrigger.start + 2, { immediate: true });
-            ScrollTrigger.update();
-            window.dispatchEvent(new Event('scroll'));
-            return;
-          }
-        }
-        const target = document.querySelector(window.location.hash);
-        if (target) {
-          lenis.scrollTo(target, { offset: -76, immediate: true });
-          ScrollTrigger.update();
-          window.dispatchEvent(new Event('scroll'));
-        }
-      }
     };
 
-    const refreshTimer = setTimeout(syncTriggers, 650);
-    const postPreloaderTimer = setTimeout(() => ScrollTrigger.refresh(), 1600);
-    window.addEventListener('load', syncTriggers);
+    const rafRefresh = requestAnimationFrame(refreshTriggers);
+    window.addEventListener('load', refreshTriggers);
 
     // Intercept native anchor links (#hampers, #customize, #story, etc.) so Lenis + ScrollTrigger stay synced
     const handleAnchorClick = (e) => {
@@ -112,9 +105,10 @@ export default function App() {
     document.addEventListener('click', handleAnchorClick);
 
     return () => {
-      clearTimeout(refreshTimer);
-      clearTimeout(postPreloaderTimer);
-      window.removeEventListener('load', syncTriggers);
+      cancelAnimationFrame(rafRefresh);
+      window.removeEventListener('beforeunload', resetScrollOnUnload);
+      window.removeEventListener('pagehide', resetScrollOnUnload);
+      window.removeEventListener('load', refreshTriggers);
       document.removeEventListener('click', handleAnchorClick);
       gsap.ticker.remove(tickerFn);
       lenis.destroy();
@@ -123,11 +117,8 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-stone-900 relative selection:bg-[#FEEAE6] selection:text-[#FB1443]">
-      {/* Silk Curtain Luxury Intro Reveal */}
-      <PreloaderIntro />
-
-      {/* Custom Magnetic Cursor & Rose Spotlight (Desktop fine pointer) */}
+    <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-stone-900 relative selection:bg-[#FB1443]/15 selection:text-[#FB1443]">
+      {/* Custom Magnetic Cursor (Desktop fine pointer) */}
       <MagneticCursor />
 
       {/* Live Brand Scroll Ribbon */}
@@ -141,35 +132,30 @@ export default function App() {
 
       {/* 3. Main Interactive Experience */}
       <main className="flex-1 relative z-10 bg-white">
-        {/* Scroll & Click-to-Unbox 3D Hero Stage -> Horizontal Center Cut & Vertical Split directly revealing Hampers */}
+        {/* Scroll & Click-to-Unbox 3D Hero Stage -> Horizontal Center Cut & Vertical Split directly revealing Hampers (#FAF7F2) */}
         <HeroSection>
           <ChelyProductsShowcase />
         </HeroSection>
 
-        {/* Transition 2 (Lenis Split Satin Curtain Doors, sticky-safe): Hampers Cream -> Studio White */}
+        {/* Transition 2 (Lenis Split Ivory/White Curtain Doors, sticky-safe): Hampers Cream -> Studio White */}
         <LenisSectionTransition variant="curtain-split" backdropColor="#FAF7F2">
           <ChelyCustomHamperBuilder />
         </LenisSectionTransition>
 
-        {/* Unique Lateral Page-Sweep Transition (Story White -> Journey Cream, zero zoom/split) */}
+        {/* Unique Lateral Page-Sweep Transition (Story Cream #FAF7F2 -> Journey White #FFFFFF) */}
         <StoryToJourneyStage />
 
-        {/* Transition 5 (Lenis Radial Circle Spotlight Bloom): Journey Cream -> HowItWorks White */}
-        <LenisSectionTransition variant="circle-bloom" backdropColor="#FAF7F2">
+        {/* Transition 5 (Horizon Crimson Thread + Glide): Journey White -> HowItWorks Cream #FAF7F2 */}
+        <LenisSectionTransition variant="circle-bloom" backdropColor="#FFFFFF">
           <ChelyHowItWorksSection />
         </LenisSectionTransition>
 
-        {/* Transition 6 (Staggered Triple-Ribbon Silk Unroll): HowItWorks White -> Instafeed Cream */}
-        <LenisSectionTransition variant="triple-ribbon" backdropColor="#FFFFFF">
+        {/* Transition 6 (3D Arch Card Unfold + Crimson Crest Spread): HowItWorks Cream -> Instafeed White */}
+        <LenisSectionTransition variant="arch-unfold" backdropColor="#FAF7F2">
           <ChelyInstagramStampFeed />
         </LenisSectionTransition>
 
-        {/* Transition 7 (Split Blush Veil Reveal, sticky-safe): Instafeed Cream -> FAQ White */}
-        <LenisSectionTransition variant="depth-curtain" backdropColor="#FAF7F2">
-          <ChelyFAQSection />
-        </LenisSectionTransition>
-
-        {/* Transition 8 (Lenis Silk Card Unveil Lift): FAQ White -> Festive Offers Blush */}
+        {/* Transition 7 (Clean Crimson Thread + Straight Lift): Instafeed White -> Newsletter Golden Cream */}
         <LenisSectionTransition variant="unveil-up" backdropColor="#FFFFFF">
           <ChelyNewsletterBanner />
         </LenisSectionTransition>

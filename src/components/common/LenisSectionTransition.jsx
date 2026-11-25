@@ -52,59 +52,8 @@ export function useLenisVelocity() {
 }
 
 /**
- * Scroll-driven inter-section kinetic ribbon powered by Lenis velocity.
- * Zero horizontal tilt or side shrink; flows smoothly edge-to-edge.
- */
-export function LenisVelocitySeam({
-  text = 'HANDCRAFTED HAMPERS ✦ BY KDF NUTS ✦ PAN-INDIA DELIVERY ✦ BESPOKE GIFTING',
-  bg = '#FAF7F2',
-  accent = '#FB1443',
-}) {
-  const seamRef = useRef(null);
-  const velocity = useLenisVelocity();
-  const { scrollYProgress } = useScroll({
-    target: seamRef,
-    offset: ['start end', 'end start'],
-  });
-
-  const baseX = useTransform(scrollYProgress, [0, 1], [-120, 120]);
-  const velocityBoostX = useTransform(velocity, [-15, 0, 15], [-28, 0, 28]);
-  const lineScale = useTransform(scrollYProgress, [0.1, 0.55], [0.15, 1]);
-
-  return (
-    <div
-      ref={seamRef}
-      style={{ backgroundColor: bg }}
-      className="relative overflow-hidden py-2.5 sm:py-3 border-y border-[#FB1443]/12 select-none pointer-events-none"
-      aria-hidden="true"
-    >
-      <motion.div
-        style={{ scaleX: lineScale }}
-        className="w-full h-px bg-gradient-to-r from-transparent via-[#FB1443]/35 to-transparent mb-1.5 origin-center"
-      />
-      <motion.div style={{ x: baseX }} className="will-change-transform">
-        <motion.div
-          style={{ x: velocityBoostX }}
-          className="flex items-center justify-center whitespace-nowrap gap-6 will-change-transform"
-        >
-          {[0, 1, 2].map((i) => (
-            <span
-              key={i}
-              style={{ color: accent }}
-              className="text-[10px] sm:text-[11px] font-bold tracking-[0.26em] uppercase opacity-75"
-            >
-              {text}
-            </span>
-          ))}
-        </motion.div>
-      </motion.div>
-    </div>
-  );
-}
-
-/**
- * Clean, straight, full-bleed (100% width — zero horizontal skew or side shrink)
- * Lenis scroll-driven section-to-section transitions.
+ * Crisp, hardware-accelerated (iOS/Android 60-120Hz safe) Lenis section transitions.
+ * Pure white & warm ivory separation panels with subtle Logo Crimson hairline accents — zero pink fog.
  */
 export default function LenisSectionTransition({
   children,
@@ -123,49 +72,45 @@ export default function LenisSectionTransition({
     return () => mq.removeEventListener('change', onChange);
   }, []);
 
-  const velocity = useLenisVelocity();
-
-  // Completes smoothly right as section top rises into bottom third -> clean level display
   const { scrollYProgress: enterProgress } = useScroll({
     target: containerRef,
     offset: ['start end', 'start 72%'],
   });
 
-  // 1. Curtain-split doors (no transform on section -> sticky safe)
+  // Longer scrubbed travel for the unobstructed 3D Arched Sheet Unfold after #how-it-works
+  const { scrollYProgress: archProgress } = useScroll({
+    target: containerRef,
+    offset: ['start 96%', 'start 30%'],
+  });
+
+  // 1. Sticky-safe Curtain Split (White & Ivory doors open cleanly left/right)
   const leftDoorX = useTransform(enterProgress, [0, 0.92], ['0%', '-104%']);
   const rightDoorX = useTransform(enterProgress, [0, 0.92], ['0%', '104%']);
   const doorOpacity = useTransform(enterProgress, [0.7, 1], [1, 0]);
 
-  // 2. Full-width vertical rise + horizontal seam thread draw (no side clipping)
-  const seamLineScale = useTransform(enterProgress, [0.05, 0.95], [0, 1]);
-  const archTopWipe = useTransform(
-    enterProgress,
-    [0, 0.92],
-    ['inset(22px 0% 0% 0%)', 'inset(0px 0% 0% 0%)']
-  );
+  // 2. Crimson center-out seam thread + crisp GPU lift
+  const seamLineScale = useTransform(enterProgress, [0.05, 0.92], [0, 1]);
+  const straightY = useTransform(enterProgress, [0, 1], [24, 0]);
+  const enterOpacity = useTransform(enterProgress, [0, 0.72], [0.8, 1]);
 
-  // 3. Level page glide + subtle Lenis vertical velocity parallax (zero horizontal tilt/skew!)
-  const straightY = useTransform(enterProgress, [0, 1], [32, 0]);
-  const velocityYShift = useTransform(velocity, [-15, 0, 15], [6, 0, -6]);
-  const enterOpacity = useTransform(enterProgress, [0, 0.75], [0.72, 1]);
-
-  // 4. Radial spotlight reveal (starts cleanly from full top center, zero slanted edges)
-  const circleClip = useTransform(
-    enterProgress,
-    [0, 0.92],
-    ['circle(26% at 50% 0%)', 'circle(185% at 50% 45%)']
-  );
-
-  // 5. Staggered 3-Ribbon Horizontal Silk Gate Unroll (level horizontal lines, zero skew)
+  // 3. Staggered Triple-Ribbon Silk Unroll (Ivory/White bands — zero pink wash)
   const ribbon1X = useTransform(enterProgress, [0, 0.85], ['0%', '-104%']);
   const ribbon2X = useTransform(enterProgress, [0.08, 0.92], ['0%', '104%']);
   const ribbon3X = useTransform(enterProgress, [0.16, 0.98], ['0%', '-104%']);
   const ribbonOpacity = useTransform(enterProgress, [0.78, 1], [1, 0]);
 
-  // 6. Sticky-safe center-outward blush veil aperture
+  // 4. Sticky-safe split veil aperture (White/Ivory crisp split)
   const veilLeftX = useTransform(enterProgress, [0, 0.9], ['0%', '-104%']);
   const veilRightX = useTransform(enterProgress, [0, 0.9], ['0%', '104%']);
   const veilOpacity = useTransform(enterProgress, [0.75, 1], [0.95, 0]);
+
+  // 5. Unique Unobstructed 3D Arched Card Unfold (scales 0.88 -> 1, rounds flatten 52px -> 0, crest ribbon spreads)
+  const archScale = useTransform(archProgress, [0, 1], [0.88, 1]);
+  const archY = useTransform(archProgress, [0, 1], [28, 0]);
+  const archRadius = useTransform(archProgress, [0, 0.9], [48, 0]);
+  const archOpacity = useTransform(archProgress, [0, 0.45], [0.55, 1]);
+  const archCrestScaleX = useTransform(archProgress, [0.05, 0.88], [0.18, 1]);
+  const archCrestOpacity = useTransform(archProgress, [0, 0.82, 1], [0.9, 0.85, 0]);
 
   if (reducedMotion) {
     return <div className={className}>{children}</div>;
@@ -181,12 +126,12 @@ export default function LenisSectionTransition({
       >
         <motion.div
           style={{ x: leftDoorX, opacity: doorOpacity }}
-          className="pointer-events-none absolute top-0 left-0 w-1/2 h-24 sm:h-32 bg-gradient-to-r from-[#FEEAE6] to-[#FAF7F2] border-b border-r border-[#FB1443]/15 z-30 will-change-transform"
+          className="pointer-events-none absolute top-0 left-0 w-1/2 h-20 sm:h-28 bg-[#FAF7F2] border-b border-r border-stone-200 z-30 will-change-transform"
           aria-hidden="true"
         />
         <motion.div
           style={{ x: rightDoorX, opacity: doorOpacity }}
-          className="pointer-events-none absolute top-0 right-0 w-1/2 h-24 sm:h-32 bg-gradient-to-l from-[#FEEAE6] to-[#FAF7F2] border-b border-l border-[#FB1443]/15 z-30 will-change-transform"
+          className="pointer-events-none absolute top-0 right-0 w-1/2 h-20 sm:h-28 bg-[#FAF7F2] border-b border-l border-stone-200 z-30 will-change-transform"
           aria-hidden="true"
         />
         {children}
@@ -203,12 +148,12 @@ export default function LenisSectionTransition({
       >
         <motion.div
           style={{ x: veilLeftX, opacity: veilOpacity }}
-          className="pointer-events-none absolute top-0 left-0 w-1/2 h-24 sm:h-28 bg-gradient-to-r from-[#FEEAE6] to-[#FAF7F2] border-r border-[#FB1443]/20 z-30 will-change-transform"
+          className="pointer-events-none absolute top-0 left-0 w-1/2 h-20 sm:h-24 bg-white border-b border-r border-[#FB1443]/25 z-30 will-change-transform"
           aria-hidden="true"
         />
         <motion.div
           style={{ x: veilRightX, opacity: veilOpacity }}
-          className="pointer-events-none absolute top-0 right-0 w-1/2 h-24 sm:h-28 bg-gradient-to-l from-[#FEEAE6] to-[#FAF7F2] border-l border-[#FB1443]/20 z-30 will-change-transform"
+          className="pointer-events-none absolute top-0 right-0 w-1/2 h-20 sm:h-24 bg-white border-b border-l border-[#FB1443]/25 z-30 will-change-transform"
           aria-hidden="true"
         />
         {children}
@@ -216,7 +161,7 @@ export default function LenisSectionTransition({
     );
   }
 
-  if (variant === 'arch-portal') {
+  if (variant === 'arch-unfold' || variant === 'pleat-unseal') {
     return (
       <div
         ref={containerRef}
@@ -224,69 +169,49 @@ export default function LenisSectionTransition({
         className={`relative overflow-x-clip ${className}`}
       >
         <motion.div
-          style={{ scaleX: seamLineScale }}
-          className="pointer-events-none relative z-30 h-[2px] w-full bg-gradient-to-r from-transparent via-[#FB1443]/45 to-transparent origin-center"
-          aria-hidden="true"
-        />
-        <motion.div style={{ clipPath: archTopWipe, y: straightY }} className="will-change-transform">
-          {children}
-        </motion.div>
-      </div>
-    );
-  }
-
-  if (variant === 'silk-fold') {
-    return (
-      <div
-        ref={containerRef}
-        style={{ backgroundColor: backdropColor }}
-        className={`relative overflow-x-clip ${className}`}
-      >
-        <motion.div
-          style={{ y: straightY, opacity: enterOpacity }}
-          className="will-change-transform"
+          style={{
+            scale: archScale,
+            y: archY,
+            borderTopLeftRadius: archRadius,
+            borderTopRightRadius: archRadius,
+            opacity: archOpacity,
+          }}
+          className="relative bg-white shadow-[0_-14px_40px_-10px_rgba(28,25,23,0.08)] overflow-hidden will-change-transform origin-top"
         >
-          <motion.div style={{ y: velocityYShift }} className="will-change-transform">
-            {children}
-          </motion.div>
-        </motion.div>
-      </div>
-    );
-  }
-
-  if (variant === 'circle-bloom') {
-    return (
-      <div
-        ref={containerRef}
-        style={{ backgroundColor: backdropColor }}
-        className={`relative overflow-x-clip ${className}`}
-      >
-        <motion.div style={{ clipPath: circleClip }} className="will-change-transform">
+          {/* Tracing Crimson Arch Crest Thread that spreads across top as card flattens into full width */}
+          <motion.div
+            style={{ scaleX: archCrestScaleX, opacity: archCrestOpacity }}
+            className="pointer-events-none absolute top-0 inset-x-0 h-[3px] bg-gradient-to-r from-transparent via-[#FB1443] to-transparent origin-center z-30 will-change-transform"
+            aria-hidden="true"
+          />
           {children}
         </motion.div>
       </div>
     );
   }
 
-  if (variant === 'diagonal-slice' || variant === 'triple-ribbon') {
+  if (variant === 'triple-ribbon' || variant === 'diagonal-slice') {
     return (
       <div
         ref={containerRef}
         style={{ backgroundColor: backdropColor }}
         className={`relative overflow-x-clip ${className}`}
       >
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-28 sm:h-36 z-30 overflow-hidden" aria-hidden="true">
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 h-24 sm:h-32 z-30 overflow-hidden"
+          aria-hidden="true"
+        >
           <motion.div
             style={{ x: ribbon1X, opacity: ribbonOpacity }}
-            className="h-1/3 w-full bg-white border-b border-rose-100/80 will-change-transform"
+            className="h-1/3 w-full bg-[#FAF7F2] border-b border-stone-200/80 will-change-transform"
           />
           <motion.div
             style={{ x: ribbon2X, opacity: ribbonOpacity }}
-            className="h-1/3 w-full bg-[#FEEAE6] border-b border-[#FB1443]/15 will-change-transform"
+            className="h-1/3 w-full bg-white border-b border-[#FB1443]/20 will-change-transform"
           />
           <motion.div
             style={{ x: ribbon3X, opacity: ribbonOpacity }}
-            className="h-1/3 w-full bg-white border-b border-rose-100/80 will-change-transform"
+            className="h-1/3 w-full bg-[#FAF7F2] border-b border-stone-200/80 will-change-transform"
           />
         </div>
         <motion.div style={{ y: straightY, opacity: enterOpacity }} className="will-change-transform">
@@ -296,7 +221,7 @@ export default function LenisSectionTransition({
     );
   }
 
-  // 'unveil-up' clean horizontal straight lift with glowing seam line
+  // GPU-friendly 'circle-bloom' / 'unveil-up' / default: Crisp seam draw + smooth elevation
   return (
     <div
       ref={containerRef}
@@ -305,13 +230,10 @@ export default function LenisSectionTransition({
     >
       <motion.div
         style={{ scaleX: seamLineScale }}
-        className="pointer-events-none relative z-30 h-[2px] w-full bg-gradient-to-r from-transparent via-[#FB1443]/50 to-transparent origin-center"
+        className="pointer-events-none relative z-30 h-[2px] w-full bg-gradient-to-r from-transparent via-[#FB1443]/60 to-transparent origin-center"
         aria-hidden="true"
       />
-      <motion.div
-        style={{ y: straightY, opacity: enterOpacity }}
-        className="will-change-transform"
-      >
+      <motion.div style={{ y: straightY, opacity: enterOpacity }} className="will-change-transform">
         {children}
       </motion.div>
     </div>

@@ -5,25 +5,26 @@
 @layer base {
   :root {
     --color-cream: #FFFFFF;
-    --color-gold: #B8860B;
-    --color-burgundy: #5B1423;
-    --color-chocolate: #1C1917;
+    --color-ivory: #FAF7F2;
+    --color-crimson: #FB1443;
+    --color-ink: #1C1917;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
-    background-color: #FAF9F6;
+    background-color: #FFFFFF;
     color: #1C1917;
-    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-family: 'Sen', system-ui, sans-serif;
     overflow-x: clip;
   }
 
   h1, h2, h3, .font-serif {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Abril Fatface', Georgia, serif;
     letter-spacing: -0.015em;
-  }
-
-  .font-display {
-    font-family: 'Cormorant Garamond', Georgia, serif;
   }
 }
 
@@ -45,31 +46,21 @@ html.lenis body {
   overflow: hidden;
 }
 
-/* Custom Brand Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: #FAF7F2;
-}
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #FB1443, #FFA6B6);
-  border-radius: 999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #E00E39;
-}
-
-/* Refined luxury glass styling */
-.glass-luxury {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(184, 134, 11, 0.2);
-}
-
-.gold-gradient-bg {
-  background: linear-gradient(135deg, #B8860B 0%, #D4AF37 50%, #936B09 100%);
+/* Desktop Custom Brand Scrollbar */
+@media (pointer: fine) {
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #FAF7F2;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #FB1443;
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #E00E39;
+  }
 }
 
 /* Continuous Marquee Ticker for Announcement Bar */
@@ -93,37 +84,6 @@ html.lenis body {
   animation-play-state: paused;
 }
 
-/* Gentle Floating Bobbing Animation for Decorative Elements */
-@keyframes floatingBob {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-12px) rotate(4deg);
-  }
-}
-
-.animate-float-bob {
-  animation: floatingBob 5s ease-in-out infinite;
-}
-
-/* Continuous Marquee for Instagram Feed Background (Chely Style) */
-@keyframes instafeedMarquee {
-  0% {
-    transform: translate3d(0, 0, 0);
-  }
-  100% {
-    transform: translate3d(-50%, 0, 0);
-  }
-}
-
-.animate-instafeed-marquee {
-  display: flex;
-  width: max-content;
-  will-change: transform;
-  animation: instafeedMarquee 38s linear infinite;
-}
-
 /* Slow Continuous Orbit Spin for Decorative Shapes */
 @keyframes spinSlow {
   from {
@@ -138,20 +98,10 @@ html.lenis body {
   animation: spinSlow 34s linear infinite;
 }
 
-/* 3D Perspective Utility Helpers */
-.perspective-1200 {
-  perspective: 1200px;
-}
-
-.preserve-3d {
-  transform-style: preserve-3d;
-}
-
-/* Hide scrollbar for Chrome, Safari and Opera */
+/* Hide scrollbars cleanly where used */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
-/* Hide scrollbar for IE, Edge and Firefox */
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;

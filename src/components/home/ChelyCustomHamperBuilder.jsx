@@ -31,14 +31,14 @@ const BOX_OPTIONS = [
     name: 'Crimson Velvet Box',
     price: 950,
     image: '/assets/chely/hamper-product-2.png',
-    bgTint: '#FEEAE6',
+    bgTint: '#FAF7F2',
   },
   {
     id: 'box-wicker',
     name: 'Pearl Wicker Basket',
     price: 850,
     image: '/assets/chely/hamper-product-3.png',
-    bgTint: '#FFF6D9',
+    bgTint: '#F5EDE4',
   },
 ];
 
@@ -233,20 +233,8 @@ export default function ChelyCustomHamperBuilder() {
     <section
       ref={sectionRef}
       id="customize"
-      className="py-5 sm:py-8 lg:py-9 bg-white relative overflow-x-clip border-t border-stone-100"
+      className="py-5 sm:py-8 lg:py-9 bg-white relative overflow-x-clip border-t border-stone-200/80"
     >
-      {/* Ambient Radial Silk Glow */}
-      <div
-        className="absolute -top-24 -right-16 w-96 h-96 rounded-full pointer-events-none opacity-55 blur-3xl transition-colors duration-500"
-        style={{ background: `radial-gradient(circle, ${selectedBox.bgTint} 0%, transparent 70%)` }}
-        aria-hidden="true"
-      />
-      <div
-        className="absolute -bottom-24 -left-16 w-80 h-80 rounded-full pointer-events-none opacity-45 blur-3xl"
-        style={{ background: 'radial-gradient(circle, #FEEAE6 0%, transparent 70%)' }}
-        aria-hidden="true"
-      />
-
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 relative z-10">
         {/* Shared Signature Animated Heading */}
         <SectionHeading className="max-w-5xl mx-auto mb-3 sm:mb-6">
@@ -255,10 +243,10 @@ export default function ChelyCustomHamperBuilder() {
 
         {/* ========================================================
             MOBILE & TABLET: ULTRA-COMPACT STICKY LIVE PREVIEW BAR (< lg)
-            Always stays visible right above controls — zero scrolling up!
+            Zero backdrop-blur for 60fps iOS Safari scrolling
         ======================================================== */}
         <div className="lg:hidden sticky top-[76px] z-30 mb-3">
-          <div className="relative rounded-2xl border border-[#FB1443]/25 bg-white/95 backdrop-blur-md shadow-[0_10px_28px_-6px_rgba(53,28,78,0.18)] overflow-hidden">
+          <div className="relative rounded-2xl border border-stone-200 bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] overflow-hidden">
             {trayPulseKey > 0 && (
               <motion.div
                 key={`m-pulse-${trayPulseKey}`}
@@ -286,6 +274,8 @@ export default function ChelyCustomHamperBuilder() {
                   <img
                     src={selectedBox.image}
                     alt={selectedBox.name}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover"
                   />
                   <span
@@ -399,7 +389,7 @@ export default function ChelyCustomHamperBuilder() {
                             <span className="font-sans font-bold text-[11px] text-stone-900 truncate">
                               {item.title}
                             </span>
-                            <span className="text-[10px] font-bold text-[#A31352] shrink-0">
+                            <span className="text-[10px] font-bold text-[#FB1443] shrink-0">
                               {BRAND_CONFIG.currency}
                               {(item.price * item.qty).toLocaleString()}
                             </span>
@@ -440,7 +430,7 @@ export default function ChelyCustomHamperBuilder() {
                           setActiveTab('note');
                           setMobileTrayOpen(false);
                         }}
-                        className="w-full text-left px-2.5 py-1 rounded-lg bg-[#FEEAE6]/50 border border-rose-200/60 flex items-center justify-between gap-2"
+                        className="w-full text-left px-2.5 py-1 rounded-lg bg-[#FAF7F2] border border-stone-200 flex items-center justify-between gap-2"
                       >
                         <span className="font-script text-xs text-stone-700 truncate">
                           💌 “{customNote}”
@@ -514,7 +504,7 @@ export default function ChelyCustomHamperBuilder() {
                     {tab.id === 'treats' && totalItemsCount > 0 && (
                       <span
                         className={`px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] leading-none font-bold ${
-                          active ? 'bg-white text-[#FB1443]' : 'bg-[#FEEAE6] text-[#FB1443]'
+                          active ? 'bg-white text-[#FB1443]' : 'bg-stone-200/75 text-[#351C4E]'
                         }`}
                       >
                         {totalItemsCount}
@@ -581,8 +571,8 @@ export default function ChelyCustomHamperBuilder() {
                           onClick={(e) => handleBoxSelect(box, e)}
                           className={`group relative rounded-xl p-1.5 sm:p-2.5 text-left transition-all bg-white border-2 ${
                             active
-                              ? 'border-[#FB1443] shadow-[0_8px_22px_rgba(251,20,67,0.14)]'
-                              : 'border-stone-200/70 hover:border-[#FFA6B6]'
+                              ? 'border-[#FB1443] shadow-[0_8px_22px_rgba(0,0,0,0.08)]'
+                              : 'border-stone-200/80 hover:border-stone-400'
                           }`}
                         >
                           {active && (
@@ -594,13 +584,15 @@ export default function ChelyCustomHamperBuilder() {
                             <img
                               src={box.image}
                               alt={box.name}
+                              loading="lazy"
+                              decoding="async"
                               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                             />
                           </div>
                           <p className="font-sans font-bold text-[10px] sm:text-xs text-stone-900 line-clamp-1">
                             {box.name}
                           </p>
-                          <p className="font-sans font-bold text-[11px] sm:text-sm text-[#A31352] mt-0.5">
+                          <p className="font-sans font-bold text-[11px] sm:text-sm text-[#FB1443] mt-0.5">
                             {BRAND_CONFIG.currency}
                             {box.price.toLocaleString()}
                           </p>
@@ -652,8 +644,8 @@ export default function ChelyCustomHamperBuilder() {
                           }}
                           className={`group relative rounded-xl p-1.5 sm:p-2 bg-white border-2 transition-all cursor-pointer select-none flex flex-row sm:flex-col items-center sm:items-stretch justify-between gap-2 sm:gap-0 ${
                             inBox
-                              ? 'border-[#FB1443] shadow-[0_6px_16px_rgba(251,20,67,0.12)]'
-                              : 'border-stone-200/70 hover:border-[#FFA6B6] shadow-xs'
+                              ? 'border-[#FB1443] shadow-[0_6px_16px_rgba(0,0,0,0.06)]'
+                              : 'border-stone-200/80 hover:border-stone-300 shadow-xs'
                           }`}
                         >
                           {inBox && (
@@ -668,10 +660,12 @@ export default function ChelyCustomHamperBuilder() {
                           )}
 
                           {/* Thumbnail — compact square left on mobile, banner top on sm+ */}
-                          <div className="w-11 h-11 sm:w-full sm:h-[76px] lg:h-[82px] rounded-lg overflow-hidden bg-[#FEEAE6]/40 shrink-0 sm:mb-1.5">
+                          <div className="w-11 h-11 sm:w-full sm:h-[76px] lg:h-[82px] rounded-lg overflow-hidden bg-[#FAF7F2] shrink-0 sm:mb-1.5">
                             <img
                               src={item.image}
                               alt={item.title}
+                              loading="lazy"
+                              decoding="async"
                               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                             />
                           </div>
@@ -688,7 +682,7 @@ export default function ChelyCustomHamperBuilder() {
                             </div>
 
                             <div className="mt-1 sm:mt-1.5 sm:pt-1.5 sm:border-t sm:border-stone-100 flex items-center justify-between gap-1">
-                              <span className="font-sans font-bold text-[10.5px] sm:text-xs text-[#A31352]">
+                              <span className="font-sans font-bold text-[10.5px] sm:text-xs text-[#FB1443]">
                                 +{BRAND_CONFIG.currency}
                                 {item.price}
                               </span>
@@ -716,7 +710,7 @@ export default function ChelyCustomHamperBuilder() {
                                   </button>
                                 </div>
                               ) : (
-                                <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#FEEAE6] text-[#FB1443] group-hover:bg-[#FB1443] group-hover:text-white flex items-center justify-center transition-colors shrink-0">
+                                <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#FAF7F2] border border-stone-200 text-[#FB1443] group-hover:bg-[#FB1443] group-hover:border-[#FB1443] group-hover:text-white flex items-center justify-center transition-colors shrink-0">
                                   <Plus className="w-2.5 h-2.5 sm:w-3 sm:h-3 stroke-[2.8]" />
                                 </span>
                               )}
@@ -783,8 +777,8 @@ export default function ChelyCustomHamperBuilder() {
                         }}
                         className={`px-2.5 py-1 rounded-full text-[10px] sm:text-[11px] font-medium border transition-all ${
                           customNote === note
-                            ? 'bg-[#FEEAE6] border-[#FB1443] text-[#FB1443]'
-                            : 'bg-white border-stone-200 text-stone-600 hover:border-[#FFA6B6]'
+                            ? 'bg-[#FB1443] border-[#FB1443] text-white'
+                            : 'bg-white border-stone-200 text-stone-700 hover:border-stone-400'
                         }`}
                       >
                         {note}
@@ -827,7 +821,7 @@ export default function ChelyCustomHamperBuilder() {
                 }}
                 className="will-change-transform"
               >
-                <div className="relative rounded-3xl border border-stone-200/90 bg-[#FAF7F2] shadow-[0_20px_50px_-14px_rgba(53,28,78,0.16)] overflow-hidden">
+                <div className="relative rounded-3xl border border-stone-200/90 bg-[#FAF7F2] shadow-[0_14px_38px_rgba(0,0,0,0.08)] overflow-hidden">
                   {trayPulseKey > 0 && (
                     <motion.div
                       key={`d-pulse-${trayPulseKey}`}
@@ -890,7 +884,7 @@ export default function ChelyCustomHamperBuilder() {
                         <h4 className="font-serif text-lg text-stone-900 leading-tight truncate">
                           {selectedBox.name}
                         </h4>
-                        <p className="text-xs font-bold text-[#A31352] mt-0.5">
+                        <p className="text-xs font-bold text-[#FB1443] mt-0.5">
                           {BRAND_CONFIG.currency}
                           {selectedBox.price.toLocaleString()} • {selectedRibbon.name}
                         </p>
@@ -976,7 +970,7 @@ export default function ChelyCustomHamperBuilder() {
                                 <p className="font-sans font-bold text-[11px] text-stone-900 truncate">
                                   {item.title}
                                 </p>
-                                <p className="text-[11px] font-bold text-[#A31352]">
+                                <p className="text-[11px] font-bold text-[#FB1443]">
                                   {BRAND_CONFIG.currency}
                                   {(item.price * item.qty).toLocaleString()}
                                 </p>

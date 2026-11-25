@@ -54,7 +54,7 @@ export default function SectionHeading({
         </div>
 
         <span
-          className="absolute -top-3 -right-5 text-[#FFA6B6] text-xl font-bold select-none animate-pulse"
+          className="absolute -top-3 -right-5 text-[#FB1443]/75 text-lg font-bold select-none"
           aria-hidden="true"
         >
           ✦

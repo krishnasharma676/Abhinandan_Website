@@ -104,6 +104,7 @@ function ReelStampCard({
   index,
   isFocused,
   anyFocused,
+  shouldPlay = true,
   parallaxY,
   onFocusStart,
   onFocusEnd,
@@ -118,11 +119,15 @@ function ReelStampCard({
     video.defaultMuted = true;
     video.muted = true;
     video.playsInline = true;
-    const playPromise = video.play();
-    if (playPromise !== undefined) {
-      playPromise.catch(() => {});
+    if (shouldPlay) {
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {});
+      }
+    } else if (!video.paused) {
+      video.pause();
     }
-  }, []);
+  }, [shouldPlay]);
 
   return (
     <motion.div
@@ -156,57 +161,56 @@ function ReelStampCard({
       className="group block relative cursor-pointer focus:outline-none select-none will-change-transform"
       title="Click to watch reel with sound"
     >
-      <div
-        className={`relative w-full transition-all duration-300 ${
-          isFocused
-            ? 'drop-shadow-[0_22px_36px_rgba(251,20,67,0.24)]'
-            : 'drop-shadow-[0_12px_26px_rgba(53,28,78,0.1)]'
-        }`}
-      >
+      <div className="relative w-full transition-transform duration-300">
         <svg
           viewBox="0 0 300 410"
           className="w-full h-auto overflow-visible select-none pointer-events-none block"
         >
-          <path d={STAMP_PATH} fill="#FFFFFF" />
+          <path
+            d={STAMP_PATH}
+            fill="#FAF7F2"
+            stroke={isFocused ? '#FB1443' : '#E7E5E4'}
+            strokeWidth={isFocused ? 2 : 1.5}
+          />
         </svg>
 
         <div className="absolute top-[4.4%] bottom-[4.4%] left-[6%] right-[6%] overflow-hidden rounded-[4px] bg-stone-950">
           <video
             ref={videoRef}
-            src={post.video}
+            src={shouldPlay ? post.video : undefined}
             poster={post.image}
-            autoPlay
             muted
             loop
             playsInline
             webkit-playsinline="true"
-            preload="metadata"
+            preload={shouldPlay ? 'auto' : 'none'}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           />
 
           {/* Top Tag & Sound Preview Chip */}
           <div className="absolute top-2.5 inset-x-2.5 flex items-center justify-between pointer-events-none">
-            <span className="px-2 py-0.5 rounded-full bg-white/90 text-[#351C4E] text-[9px] font-bold tracking-wider uppercase shadow-xs">
+            <span className="px-2 py-0.5 rounded-full bg-white text-[#1C1917] text-[9px] font-bold tracking-wider uppercase shadow-xs">
               {post.tag}
             </span>
             <span
               className={`w-6 h-6 rounded-full flex items-center justify-center transition-all duration-300 shadow-sm ${
                 isFocused
                   ? 'bg-[#FB1443] text-white scale-105'
-                  : 'bg-black/45 text-white/90 backdrop-blur-xs'
+                  : 'bg-stone-900/70 text-white'
               }`}
             >
               {isFocused ? <Volume2 className="w-3 h-3" /> : <Play className="w-3 h-3 fill-current" />}
             </span>
           </div>
 
-          {/* Bottom Interactive Hover/Focus Frosted Strip */}
+          {/* Bottom Interactive Hover/Focus Strip */}
           <div
-            className={`absolute inset-x-0 bottom-0 p-2.5 pt-8 bg-gradient-to-t from-[#351C4E]/90 via-[#351C4E]/45 to-transparent transition-opacity duration-300 ${
+            className={`absolute inset-x-0 bottom-0 p-2.5 pt-8 bg-gradient-to-t from-stone-950/75 via-stone-900/20 to-transparent transition-opacity duration-300 ${
               isFocused ? 'opacity-100' : 'opacity-80 sm:opacity-0 sm:group-hover:opacity-100'
             }`}
           >
-            <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-[#FFE885]">
+            <span className="inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider text-white">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#FB1443]" />
               <span>Watch Reel</span>
             </span>
           </div>
@@ -220,8 +224,39 @@ export default function ChelyInstagramStampFeed() {
   const [hoveredId, setHoveredId] = useState(null);
   const [mobileIdx, setMobileIdx] = useState(0);
   const [selectedPost, setSelectedPost] = useState(null);
+  const [isSectionNear, setIsSectionNear] = useState(false);
+  const [isMobileViewport, setIsMobileViewport] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(max-width: 639px)').matches : false
+  );
   const modalVideoRef = useRef(null);
   const sectionRef = useRef(null);
+  const inViewRef = useRef(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)');
+    const onMq = () => setIsMobileViewport(mq.matches);
+    mq.addEventListener('change', onMq);
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        inViewRef.current = entry.isIntersecting;
+        setIsSectionNear(entry.isIntersecting && document.visibilityState === 'visible');
+      },
+      { rootMargin: '220px 0px', threshold: 0.01 }
+    );
+    if (sectionRef.current) observer.observe(sectionRef.current);
+
+    const onVisibility = () => {
+      setIsSectionNear(inViewRef.current && document.visibilityState === 'visible');
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+
+    return () => {
+      mq.removeEventListener('change', onMq);
+      observer.disconnect();
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, []);
 
   const velocity = useLenisVelocity();
   const { scrollYProgress } = useScroll({
@@ -272,7 +307,7 @@ export default function ChelyInstagramStampFeed() {
     <section
       ref={sectionRef}
       id="instagram"
-      className="py-12 sm:py-16 lg:py-20 bg-[#FAF7F2] relative overflow-hidden"
+      className="py-12 sm:py-16 lg:py-20 bg-white border-t border-stone-200/80 relative overflow-hidden"
     >
       {/* Lenis Scroll-Linked Kinetic Background Marquee */}
       <div className="absolute top-16 sm:top-20 left-0 w-full pointer-events-none select-none z-0 overflow-hidden">
@@ -314,7 +349,7 @@ export default function ChelyInstagramStampFeed() {
             href={BRAND_CONFIG.social.instagram}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white border border-[#FEEAE6] shadow-2xs text-[11px] sm:text-xs font-bold text-[#351C4E] hover:border-[#FB1443] hover:text-[#FB1443] transition-colors"
+            className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#FAF7F2] border border-stone-200 shadow-2xs text-[11px] sm:text-xs font-bold text-[#351C4E] hover:border-[#FB1443] hover:text-[#FB1443] transition-colors"
           >
             <span className="w-2 h-2 rounded-full bg-[#FB1443] animate-pulse" />
             <span>@abbhinandan_.gifting</span>
@@ -362,6 +397,7 @@ export default function ChelyInstagramStampFeed() {
                     index={idx}
                     isFocused={isCenter}
                     anyFocused={true}
+                    shouldPlay={isSectionNear && isMobileViewport && isCenter && !selectedPost}
                     onFocusStart={() => {}}
                     onFocusEnd={() => {}}
                     onOpenZoom={(p) => {
@@ -386,7 +422,7 @@ export default function ChelyInstagramStampFeed() {
               <ChevronLeft className="w-4 h-4" />
             </button>
 
-            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1.5 rounded-full border border-[#FEEAE6] shadow-2xs">
+            <div className="flex items-center gap-1.5 bg-[#FAF7F2] px-2.5 py-1.5 rounded-full border border-stone-200 shadow-2xs">
               {INSTA_POSTS.map((p, idx) => {
                 const active = idx === mobileIdx;
                 return (
@@ -423,6 +459,7 @@ export default function ChelyInstagramStampFeed() {
                 index={index}
                 isFocused={hoveredId === post.id}
                 anyFocused={hoveredId !== null}
+                shouldPlay={isSectionNear && !isMobileViewport && !selectedPost}
                 parallaxY={index % 2 === 0 ? oddColumnParallaxY : evenColumnParallaxY}
                 onFocusStart={() => setHoveredId(post.id)}
                 onFocusEnd={() => setHoveredId(null)}
@@ -442,7 +479,7 @@ export default function ChelyInstagramStampFeed() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[95] bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6"
+                className="fixed inset-0 z-[95] bg-black/90 flex items-center justify-center p-3 sm:p-6"
                 onClick={closeModal}
               >
                 <motion.div
@@ -458,7 +495,7 @@ export default function ChelyInstagramStampFeed() {
                       href={BRAND_CONFIG.social.instagram}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex items-center gap-2 text-xs sm:text-sm font-bold tracking-wider hover:text-[#FFA6B6] transition-colors"
+                      className="flex items-center gap-2 text-xs sm:text-sm font-bold tracking-wider hover:text-[#FB1443] transition-colors"
                     >
                       <InstagramIcon className="w-4 h-4 text-[#FB1443]" />
                       <span>@abbhinandan_.gifting</span>
@@ -466,7 +503,7 @@ export default function ChelyInstagramStampFeed() {
                     <button
                       onClick={closeModal}
                       aria-label="Close zoomed video"
-                      className="w-9 h-9 rounded-full bg-white/15 hover:bg-[#FB1443] text-white flex items-center justify-center transition-colors backdrop-blur-sm"
+                      className="w-9 h-9 rounded-full bg-white/15 hover:bg-[#FB1443] text-white flex items-center justify-center transition-colors"
                     >
                       <X className="w-5 h-5" />
                     </button>
@@ -487,7 +524,7 @@ export default function ChelyInstagramStampFeed() {
                     <button
                       type="button"
                       onClick={() => navigateModal(-1)}
-                      className="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 hover:bg-[#FB1443] text-white flex items-center justify-center backdrop-blur-sm transition-colors"
+                      className="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/65 hover:bg-[#FB1443] text-white flex items-center justify-center transition-colors"
                       aria-label="Previous reel"
                     >
                       <ChevronLeft className="w-5 h-5" />
@@ -495,7 +532,7 @@ export default function ChelyInstagramStampFeed() {
                     <button
                       type="button"
                       onClick={() => navigateModal(1)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 hover:bg-[#FB1443] text-white flex items-center justify-center backdrop-blur-sm transition-colors"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/65 hover:bg-[#FB1443] text-white flex items-center justify-center transition-colors"
                       aria-label="Next reel"
                     >
                       <ChevronRight className="w-5 h-5" />

@@ -1,13 +1,21 @@
 <!doctype html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+      if (window.location.hash) history.replaceState(null, '', window.location.pathname + window.location.search);
+      window.scrollTo(0, 0);
+    </script>
+    <link rel="preload" as="image" href="/assets/chely/hero-bg-4.png" fetchpriority="high" />
+    <link rel="preload" as="image" href="/assets/logo.png" fetchpriority="high" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=4" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=4" />
     <link rel="icon" type="image/png" href="/favicon.png?v=4" />
     <link rel="shortcut icon" href="/favicon.ico?v=4" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=4" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#FFFFFF" />
     <title>Abhinandan Gifting | Custom Gift Hampers by KDF NUTS</title>
     <meta name="description" content="Personalized custom gift hampers for weddings, birthdays, corporate gifting, and festive celebrations by KDF NUTS. Delivered across India." />
     <meta property="og:title" content="Abhinandan Gifting | Custom Gift Hampers by KDF NUTS" />

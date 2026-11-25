@@ -133,6 +133,8 @@ export default function Navbar() {
                 <img
                   src={BRAND_CONFIG.logo || '/assets/logo.png'}
                   alt={BRAND_CONFIG.name}
+                  decoding="sync"
+                  fetchPriority="high"
                   className={`w-auto object-contain transition-all duration-300 group-hover:scale-105 ${
                     showNavItems ? 'h-9 sm:h-10 lg:h-12' : 'h-12 sm:h-14 lg:h-16'
                   }`}
@@ -221,7 +223,7 @@ export default function Navbar() {
                       target={link.isExternal ? '_blank' : undefined}
                       rel={link.isExternal ? 'noreferrer' : undefined}
                       onClick={(e) => handleLinkClick(e, link)}
-                      className="px-3 py-2 rounded-xl text-sm font-bold text-[#212529] hover:bg-[#FAF8FC] hover:text-[#FFA6B6] transition-colors"
+                      className="px-3 py-2 rounded-xl text-sm font-bold text-[#212529] hover:bg-[#FAF7F2] hover:text-[#FB1443] transition-colors"
                     >
                       {link.label}
                     </a>

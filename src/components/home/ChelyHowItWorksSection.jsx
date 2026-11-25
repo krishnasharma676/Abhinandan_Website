@@ -5,6 +5,7 @@ import {
   useTransform,
   useInView,
   useSpring,
+  useReducedMotion,
 } from 'framer-motion';
 import { Package, Sparkles, PenLine, Truck, ArrowRight } from 'lucide-react';
 import SectionHeading from '../common/SectionHeading';
@@ -12,7 +13,7 @@ import SectionHeading from '../common/SectionHeading';
 /* ─── Brand palette ─── */
 const CRIMSON = '#FB1443';
 const PLUM    = '#351C4E';
-const BLUSH   = '#FEEAE6';
+const BLUSH   = '#E7E5E4';
 const CREAM   = '#FAF7F2';
 
 /* ─── Step data ─── */
@@ -25,7 +26,7 @@ const STEPS = [
     subtitle: 'The perfect vessel',
     desc: 'Choose from hand-selected wicker baskets, heirloom wood trunks, or plush velvet boxes — each wrapped in satin ribbon.',
     color: CRIMSON,
-    bg: '#FFF0F3',
+    bg: '#FAF7F2',
     image: '/assets/chely/hamper-product-1.png',
     fallback: '/assets/brand/royal-whispers-trousseau.png',
     tag: 'CURATED SELECTION',
@@ -130,13 +131,15 @@ function StepCard({ step, index }) {
     >
       {/* Crisp Framed Image Card (no blurry fog halos or milky shimmer) */}
       <div
-        className="relative overflow-hidden rounded-2xl lg:rounded-[28px] shadow-[0_10px_30px_rgba(53,28,78,0.1)] border border-rose-100 bg-white"
+        className="relative overflow-hidden rounded-2xl lg:rounded-[28px] shadow-[0_8px_24px_rgba(0,0,0,0.06)] border border-stone-200 bg-white"
         style={{ aspectRatio: '4/3' }}
       >
         <motion.img
           src={step.image}
           onError={(e) => { e.currentTarget.src = step.fallback; }}
           alt={step.title}
+          loading="lazy"
+          decoding="async"
           initial={{ scale: 1.06 }}
           animate={isInView ? { scale: 1 } : {}}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
@@ -282,50 +285,43 @@ export default function ChelyHowItWorksSection() {
   const headingRef  = useRef(null);
   const stepsRef    = useRef(null);
   const isHeadingIn = useInView(headingRef, { once: true, amount: 0.1 });
+  const prefersReduced = useReducedMotion();
+
+  const { scrollYProgress: exitProgress } = useScroll({
+    target: sectionRef,
+    offset: ['end 90%', 'end 16%'],
+  });
+  const exitScale = useTransform(exitProgress, [0, 1], [1, 0.94]);
+  const exitOpacity = useTransform(exitProgress, [0, 1], [1, 0.45]);
+  const exitY = useTransform(exitProgress, [0, 1], [0, -16]);
 
   return (
     <section
       ref={sectionRef}
       id="how-it-works"
-      className="relative overflow-hidden bg-white"
+      className="relative overflow-hidden bg-[#FAF7F2] border-t border-stone-200/80"
     >
-      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-8 lg:px-10 py-14 sm:py-20">
+      <motion.div
+        style={
+          prefersReduced
+            ? undefined
+            : { scale: exitScale, opacity: exitOpacity, y: exitY }
+        }
+        className="relative z-10 max-w-5xl mx-auto px-4 sm:px-8 lg:px-10 py-14 sm:py-20 will-change-transform origin-bottom"
+      >
 
         {/* ── HEADING ── */}
         <div ref={headingRef} className="text-center mb-10 sm:mb-16">
-          {/* Pre-label */}
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={isHeadingIn ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.4 }}
-            className="inline-flex items-center gap-3 mb-4"
-          >
-            <span className="w-7 h-px" style={{ background: CRIMSON }} />
-            <span className="text-[10px] lg:text-[11px] font-bold tracking-[0.22em] uppercase" style={{ color: CRIMSON }}>
-              How It Works
-            </span>
-            <span className="w-7 h-px" style={{ background: CRIMSON }} />
-          </motion.div>
-
           <SectionHeading className="max-w-xl mx-auto">
             How to customize your hamper
           </SectionHeading>
-
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={isHeadingIn ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: 0.1, duration: 0.4 }}
-            className="text-stone-600 font-sans text-sm max-w-sm mx-auto mt-3"
-          >
-            From choosing the box to doorstep delivery — every detail crafted with love.
-          </motion.p>
 
           {/* Stats */}
           <motion.div
             initial={{ opacity: 0, y: 14 }}
             animate={isHeadingIn ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: 0.15, duration: 0.4 }}
-            className="mt-7 flex flex-nowrap items-center justify-center gap-3"
+            transition={{ delay: 0.1, duration: 0.4 }}
+            className="mt-6 sm:mt-7 grid grid-cols-3 items-stretch max-w-md sm:max-w-lg mx-auto gap-2.5 sm:gap-3.5"
           >
             {[
               { num: 500, suffix: '+', label: 'Hampers Gifted' },
@@ -334,14 +330,14 @@ export default function ChelyHowItWorksSection() {
             ].map((stat) => (
               <div
                 key={stat.label}
-                className="flex flex-col items-center px-4 sm:px-5 py-2 rounded-xl border shadow-sm"
-                style={{ background: CREAM, borderColor: BLUSH }}
+                className="h-full flex flex-col items-center justify-center px-2.5 sm:px-5 py-2.5 sm:py-3 rounded-xl border shadow-sm text-center"
+                style={{ background: '#FFFFFF', borderColor: '#E7E5E4' }}
               >
-                <span className="font-serif text-lg lg:text-xl font-normal" style={{ color: PLUM }}>
+                <span className="font-serif text-lg lg:text-xl font-normal leading-tight" style={{ color: PLUM }}>
                   <CountUp target={stat.num} />
                   {stat.suffix}
                 </span>
-                <span className="text-stone-600 text-[10px] tracking-wider uppercase mt-0.5 font-medium">
+                <span className="text-stone-600 text-[10px] tracking-wider uppercase mt-1 font-medium leading-snug">
                   {stat.label}
                 </span>
               </div>
@@ -381,7 +377,7 @@ export default function ChelyHowItWorksSection() {
             href={`https://wa.me/919109004099?text=${encodeURIComponent('Hi! I want to customize a gift hamper.')}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="group inline-flex items-center gap-2.5 px-7 sm:px-8 py-3.5 rounded-full text-white font-bold tracking-wide text-sm transition-all duration-300 hover:scale-105 hover:shadow-[0_8px_28px_rgba(251,20,67,0.4)] active:scale-95 shadow-[0_4px_14px_rgba(251,20,67,0.3)]"
+            className="group inline-flex items-center gap-2.5 px-7 sm:px-8 py-3.5 rounded-full text-white font-bold tracking-wide text-sm transition-all duration-300 hover:scale-105 hover:shadow-md active:scale-95 shadow-sm"
             style={{ background: `linear-gradient(135deg, ${CRIMSON}, #c0082f)` }}
           >
             <span>Start Customizing on WhatsApp</span>
@@ -393,7 +389,7 @@ export default function ChelyHowItWorksSection() {
             </motion.span>
           </a>
         </motion.div>
-      </div>
+      </motion.div>
     </section>
   );
 }

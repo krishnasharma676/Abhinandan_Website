@@ -156,20 +156,13 @@ function ArchCoverflowCard({
       }}
       className="absolute top-0 w-[250px] sm:w-[290px] lg:w-[310px] cursor-pointer select-none"
     >
-      {/* Active Spotlight Floor Bloom */}
-      <div
-        className={`absolute -inset-x-4 -bottom-5 h-10 rounded-full blur-xl transition-opacity duration-500 pointer-events-none ${
-          isActive ? 'opacity-70 bg-[#FB1443]/20' : 'opacity-0'
-        }`}
-      />
-
-      {/* Interactive 3D Royal Arch Frame Card */}
+      {/* Subtle Crisp Neutral Shadow Base (no pink blur fog) */}
       <div
         ref={cardTiltRef}
         className={`relative bg-white rounded-t-[155px] rounded-b-[26px] p-2.5 sm:p-3 pb-4 transition-all duration-300 ${
           isActive
-            ? 'shadow-[0_24px_55px_-12px_rgba(53,28,78,0.18)] ring-2 ring-[#FB1443]/25'
-            : 'shadow-[0_14px_30px_-10px_rgba(0,0,0,0.1)] ring-1 ring-stone-200/80 hover:ring-[#FFA6B6]'
+            ? 'shadow-[0_18px_40px_-14px_rgba(28,25,23,0.14)] ring-2 ring-[#FB1443]/40'
+            : 'shadow-[0_10px_24px_-10px_rgba(0,0,0,0.08)] ring-1 ring-stone-200 hover:ring-stone-300'
         }`}
         style={{ transformStyle: 'preserve-3d' }}
       >
@@ -181,6 +174,8 @@ function ArchCoverflowCard({
               e.currentTarget.src = product.fallbackImage;
             }}
             alt={product.title}
+            loading="lazy"
+            decoding="async"
             draggable="false"
             className={`w-full h-full object-cover object-center transition-transform duration-700 ease-out ${
               isActive ? 'group-hover:scale-110' : 'scale-100'
@@ -219,7 +214,7 @@ function ArchCoverflowCard({
             {product.title}
           </h3>
 
-          <p className="font-sans font-bold text-base sm:text-lg text-[#A31352]">
+          <p className="font-sans font-bold text-base sm:text-lg text-[#FB1443]">
             {BRAND_CONFIG.currency}
             {product.price.toLocaleString()}
           </p>
@@ -352,7 +347,7 @@ export default function ChelyProductsShowcase() {
             <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
 
-          <div className="flex items-center gap-1.5 sm:gap-2.5 bg-white/85 backdrop-blur-sm px-2.5 sm:px-3 py-1.5 rounded-full border border-stone-200/80 shadow-sm">
+          <div className="flex items-center gap-1.5 sm:gap-2.5 bg-white px-2.5 sm:px-3 py-1.5 rounded-full border border-stone-200 shadow-sm">
             {PRODUCTS.map((p, idx) => {
               const active = idx === activeIdx;
               return (
@@ -373,6 +368,8 @@ export default function ChelyProductsShowcase() {
                       e.currentTarget.src = p.fallbackImage;
                     }}
                     alt={p.title}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover"
                   />
                 </button>
@@ -455,7 +452,7 @@ export default function ChelyProductsShowcase() {
                     <h3 className="font-sans font-bold text-base tracking-wider text-stone-900 uppercase mb-1">
                       {selectedProduct.title}
                     </h3>
-                    <p className="font-sans font-bold text-lg text-[#A31352] mb-4">
+                    <p className="font-sans font-bold text-lg text-[#FB1443] mb-4">
                       {BRAND_CONFIG.currency}
                       {selectedProduct.price.toLocaleString()}
                     </p>

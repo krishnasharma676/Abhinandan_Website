@@ -6,7 +6,7 @@ import { BRAND_CONFIG } from '../../config/brand';
 
 export default function Footer() {
   return (
-    <footer className="bg-[#FAF7F2] text-stone-600 text-xs font-sans border-t border-stone-200/80">
+    <footer className="bg-white text-stone-600 text-xs font-sans border-t border-stone-200/80">
       {/* Main Footer Container with Smooth Scroll Reveal */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -22,6 +22,8 @@ export default function Footer() {
               <img
                 src={BRAND_CONFIG.logo || '/assets/logo.png'}
                 alt={BRAND_CONFIG.name}
+                loading="lazy"
+                decoding="async"
                 className="h-10 sm:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
               />
             </a>
@@ -168,8 +170,8 @@ export default function Footer() {
             <a href="#hampers" className="hover:text-[#FB1443] transition-colors">
               Hampers
             </a>
-            <a href="#faq" className="hover:text-[#FB1443] transition-colors">
-              FAQs
+            <a href="#customize" className="hover:text-[#FB1443] transition-colors">
+              Customize
             </a>
           </div>
         </div>

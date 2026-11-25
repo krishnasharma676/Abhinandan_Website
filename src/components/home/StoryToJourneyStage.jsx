@@ -116,7 +116,7 @@ export default function StoryToJourneyStage() {
     <div
       id="story-journey-stage"
       ref={stageRef}
-      className="relative w-full min-h-[calc(100vh-76px)] grid grid-cols-1 overflow-x-clip bg-white"
+      className="relative w-full min-h-[calc(100vh-76px)] grid grid-cols-1 overflow-x-clip bg-[#FAF7F2]"
     >
       {/* BASE LAYER (z-10): Personalized Gift Hampers Story */}
       <div
@@ -141,7 +141,7 @@ export default function StoryToJourneyStage() {
         className="pointer-events-none absolute top-0 bottom-0 right-0 -mr-3.5 z-30 flex flex-col items-center justify-center opacity-0 will-change-transform"
         aria-hidden="true"
       >
-        <div className="w-[3px] h-full bg-gradient-to-b from-[#FFA6B6] via-[#FB1443] to-[#FFA6B6] shadow-[0_0_20px_rgba(251,20,67,0.55)]" />
+        <div className="w-[2px] h-full bg-gradient-to-b from-[#FB1443]/20 via-[#FB1443] to-[#FB1443]/20 shadow-sm" />
         <span className="absolute w-7 h-7 rounded-full bg-white border-2 border-[#FB1443] text-[#FB1443] text-xs font-bold flex items-center justify-center shadow-[0_6px_18px_rgba(251,20,67,0.35)]">
           ✦
         </span>

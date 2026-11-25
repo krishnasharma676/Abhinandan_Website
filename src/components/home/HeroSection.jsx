@@ -1,20 +1,19 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { motion } from 'framer-motion';
 import { MessageCircle } from 'lucide-react';
 import { BRAND_CONFIG } from '../../config/brand';
-import InteractiveGiftBox3D from './InteractiveGiftBox3D';
 import MagneticButton from '../common/MagneticButton';
+
+const InteractiveGiftBox3D = lazy(() => import('./InteractiveGiftBox3D'));
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function HeroSection({ children }) {
   const [isUnboxed, setIsUnboxed] = useState(false);
+  const [isBoxActive, setIsBoxActive] = useState(true);
   const [reducedMotion, setReducedMotion] = useState(false);
-  const [bannerEntered, setBannerEntered] = useState(() =>
-    typeof window !== 'undefined' && Boolean(window.__abhinandanPreloaderDone)
-  );
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -22,19 +21,8 @@ export default function HeroSection({ children }) {
     const onMq = (e) => setReducedMotion(e.matches);
     mq.addEventListener('change', onMq);
 
-    if (mq.matches || window.__abhinandanPreloaderDone) {
-      setBannerEntered(true);
-      return () => mq.removeEventListener('change', onMq);
-    }
-
-    const onPreloaderDone = () => setBannerEntered(true);
-    window.addEventListener('abhinandan:preloader-done', onPreloaderDone, { once: true });
-    const fallbackTimer = setTimeout(() => setBannerEntered(true), 1600);
-
     return () => {
       mq.removeEventListener('change', onMq);
-      window.removeEventListener('abhinandan:preloader-done', onPreloaderDone);
-      clearTimeout(fallbackTimer);
     };
   }, []);
 
@@ -65,6 +53,9 @@ export default function HeroSection({ children }) {
     const syncStageState = (progress, isDone) => {
       const portalOpen = progress >= 0.52;
       const splitStarted = progress >= 0.74;
+      const nextBoxActive = progress < 0.42;
+
+      setIsBoxActive((prev) => (prev === nextBoxActive ? prev : nextBoxActive));
 
       if (portalColumnRef.current) {
         portalColumnRef.current.style.pointerEvents =
@@ -271,9 +262,9 @@ export default function HeroSection({ children }) {
                 <motion.img
                   src="/assets/chely/zigzag-1.webp"
                   alt="scallop shape"
-                  initial={{ y: -14, opacity: 0 }}
-                  animate={bannerEntered ? { y: 0, opacity: 1 } : { y: -14, opacity: 0 }}
-                  transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                  initial={{ y: -12, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                   className="w-full h-auto min-h-[14px] object-cover object-top"
                 />
               </div>
@@ -283,9 +274,9 @@ export default function HeroSection({ children }) {
                 className="absolute inset-0 w-full h-full pointer-events-none z-0 will-change-transform origin-center"
               >
                 <motion.div
-                  initial={{ scale: 1.1, opacity: 0.8 }}
-                  animate={bannerEntered ? { scale: 1, opacity: 1 } : { scale: 1.1, opacity: 0.8 }}
-                  transition={{ duration: 1.05, ease: [0.22, 1, 0.36, 1] }}
+                  initial={{ scale: 1.06, opacity: 0.85 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
                   className="w-full h-full bg-cover bg-bottom"
                   style={{ backgroundImage: `url('/assets/chely/hero-bg-4.png')` }}
                 />
@@ -297,13 +288,9 @@ export default function HeroSection({ children }) {
               >
                 <h1 className="font-serif text-[27px] sm:text-3xl md:text-4xl lg:text-[46px] font-normal text-[#351C4E] leading-[1.16] tracking-tight mb-2.5">
                   <motion.span
-                    initial={{ opacity: 0, y: 28, filter: 'blur(6px)' }}
-                    animate={
-                      bannerEntered
-                        ? { opacity: 1, y: 0, filter: 'blur(0px)' }
-                        : { opacity: 0, y: 28, filter: 'blur(6px)' }
-                    }
-                    transition={{ duration: 0.68, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                     className="inline-block will-change-transform"
                   >
                     Make Every Event{' '}
@@ -312,26 +299,18 @@ export default function HeroSection({ children }) {
                       <motion.img
                         src="/assets/chely/title-shape.webp"
                         alt="sparkle"
-                        initial={{ scale: 0, rotate: -28, opacity: 0 }}
-                        animate={
-                          bannerEntered
-                            ? { scale: 1, rotate: 0, opacity: 1 }
-                            : { scale: 0, rotate: -28, opacity: 0 }
-                        }
-                        transition={{ type: 'spring', stiffness: 320, damping: 16, delay: 0.48 }}
+                        initial={{ scale: 0, rotate: -24, opacity: 0 }}
+                        animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                        transition={{ type: 'spring', stiffness: 320, damping: 16, delay: 0.25 }}
                         className="absolute -top-3.5 -right-6 sm:-top-5 sm:-right-9 w-7 sm:w-10 pointer-events-none select-none"
                       />
                     </span>
                   </motion.span>{' '}
                   <br className="hidden sm:inline" />
                   <motion.span
-                    initial={{ opacity: 0, y: 28, filter: 'blur(6px)' }}
-                    animate={
-                      bannerEntered
-                        ? { opacity: 1, y: 0, filter: 'blur(0px)' }
-                        : { opacity: 0, y: 28, filter: 'blur(6px)' }
-                    }
-                    transition={{ duration: 0.68, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
                     className="inline-block will-change-transform"
                   >
                     With Custom Gift Hampers
@@ -339,9 +318,9 @@ export default function HeroSection({ children }) {
                 </h1>
 
                 <motion.p
-                  initial={{ opacity: 0, y: 22 }}
-                  animate={bannerEntered ? { opacity: 1, y: 0 } : { opacity: 0, y: 22 }}
-                  transition={{ duration: 0.65, delay: 0.36, ease: [0.22, 1, 0.36, 1] }}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.48, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
                   className="text-[#5A3F74] text-xs sm:text-sm lg:text-[14px] max-w-lg mx-auto leading-relaxed font-sans font-medium"
                 >
                   Welcome to Abhinandan Gifting by KDF NUTS. We create custom gift hampers for weddings, birthdays, festivals, and corporate gifting. Delivered all across India.
@@ -355,16 +334,18 @@ export default function HeroSection({ children }) {
             >
               <div ref={boxInnerRef} className="w-full h-full flex items-center justify-center will-change-transform">
                 <motion.div
-                  initial={{ opacity: 0, y: 36, scale: 0.82 }}
-                  animate={
-                    bannerEntered
-                      ? { opacity: 1, y: 0, scale: 1 }
-                      : { opacity: 0, y: 36, scale: 0.82 }
-                  }
-                  transition={{ type: 'spring', stiffness: 155, damping: 16, delay: 0.28 }}
+                  initial={{ opacity: 0, y: 24, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 180, damping: 18, delay: 0.12 }}
                   className="w-full h-full flex items-center justify-center"
                 >
-                  <InteractiveGiftBox3D isUnboxed={isUnboxed} onToggleUnbox={setIsUnboxed} />
+                  <Suspense fallback={null}>
+                    <InteractiveGiftBox3D
+                      isUnboxed={isUnboxed}
+                      isActive={isBoxActive}
+                      onToggleUnbox={setIsUnboxed}
+                    />
+                  </Suspense>
                 </motion.div>
               </div>
             </div>

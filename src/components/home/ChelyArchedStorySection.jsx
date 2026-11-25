@@ -34,30 +34,23 @@ export default function ChelyArchedStorySection() {
     <section
       ref={sectionRef}
       id="story"
-      className="h-full py-8 sm:py-11 lg:py-12 min-h-[calc(100vh-76px)] flex flex-col justify-center bg-white relative overflow-x-clip border-t border-stone-100"
+      className="h-full py-8 sm:py-11 lg:py-12 min-h-[calc(100vh-76px)] flex flex-col justify-center bg-[#FAF7F2] relative overflow-x-clip border-t border-stone-200/80"
     >
-      {/* Subtle Ambient Blush Radial Glow */}
+      {/* Subtle Clean Architectural Ring Accent */}
       <div
-        className="pointer-events-none absolute top-1/2 left-1/4 -translate-y-1/2 w-[380px] h-[380px] rounded-full opacity-50 blur-3xl"
-        style={{ background: 'radial-gradient(circle, #FEEAE6 0%, transparent 70%)' }}
-        aria-hidden="true"
-      />
-
-      {/* Rotating Soft Mandala Accent */}
-      <div
-        className="absolute right-4 bottom-2 pointer-events-none opacity-25 select-none animate-spin-slow"
+        className="pointer-events-none absolute right-4 bottom-2 opacity-20 select-none animate-spin-slow"
         aria-hidden="true"
       >
         <svg width="240" height="240" viewBox="0 0 200 200" fill="none">
-          <circle cx="100" cy="100" r="80" stroke="#C9C1D9" strokeWidth="5" strokeDasharray="10 8" />
-          <circle cx="100" cy="100" r="52" stroke="#FFA6B6" strokeWidth="3.5" />
-          <circle cx="100" cy="100" r="24" stroke="#FB1443" strokeWidth="2.5" strokeOpacity="0.45" />
+          <circle cx="100" cy="100" r="80" stroke="#D6D3D1" strokeWidth="4" strokeDasharray="10 8" />
+          <circle cx="100" cy="100" r="52" stroke="#E7E5E4" strokeWidth="3" />
+          <circle cx="100" cy="100" r="24" stroke="#FB1443" strokeWidth="2" strokeOpacity="0.35" />
         </svg>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
-          {/* LEFT: Dual Fixed Arched Composition (No Image Swap — Pure 3D Tilt + Scroll Zoom & Parallax) */}
+          {/* LEFT: Dual Fixed Arched Composition (Clean White Frames + Neutral Depth) */}
           <div className="lg:col-span-6 relative flex justify-center">
             <div
               onMouseMove={handleMouseMove}
@@ -76,9 +69,9 @@ export default function ChelyArchedStorySection() {
               {/* Primary Tall Arch with Smooth Scroll Zoom-In */}
               <motion.div
                 style={{ y: primaryArchY, scale: primaryArchScale }}
-                className="w-[76%] aspect-[4/4.6] rounded-t-[150px] rounded-b-2xl overflow-hidden bg-[#FEEAE6] p-1.5 shadow-[0_20px_50px_rgba(53,28,78,0.12)] ring-1 ring-[#FB1443]/20 relative z-10 group"
+                className="w-[76%] aspect-[4/4.6] rounded-t-[150px] rounded-b-2xl overflow-hidden bg-white p-1.5 shadow-[0_16px_38px_rgba(0,0,0,0.09)] ring-1 ring-stone-200 relative z-10 group"
               >
-                <div className="w-full h-full rounded-t-[140px] rounded-b-xl overflow-hidden bg-white">
+                <div className="w-full h-full rounded-t-[140px] rounded-b-xl overflow-hidden bg-[#FAF7F2]">
                   <motion.img
                     style={{ scale: primaryImgScale }}
                     src="/assets/chely/story-arch-hamper.png"
@@ -86,6 +79,8 @@ export default function ChelyArchedStorySection() {
                       e.currentTarget.src = '/assets/brand/royal-whispers-trousseau.png';
                     }}
                     alt="Curating luxury hampers"
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
                   />
                 </div>
@@ -93,11 +88,11 @@ export default function ChelyArchedStorySection() {
 
               {/* Self-Drawing Silk Ribbon SVG on Scroll */}
               <div className="absolute -bottom-4 left-6 sm:left-10 w-44 sm:w-56 pointer-events-none z-20">
-                <svg viewBox="0 0 200 120" fill="none" className="w-full h-auto text-[#FFA6B6]">
+                <svg viewBox="0 0 200 120" fill="none" className="w-full h-auto text-[#FB1443]/35">
                   <motion.path
                     d="M 10 90 C 40 20, 110 30, 90 90 C 70 140, 170 120, 190 40"
                     stroke="currentColor"
-                    strokeWidth="7"
+                    strokeWidth="6"
                     strokeLinecap="round"
                     style={{ pathLength: ribbonPathLength }}
                   />
@@ -111,15 +106,17 @@ export default function ChelyArchedStorySection() {
                   scale: secondaryArchScale,
                   rotate: secondaryArchRotate,
                 }}
-                className="absolute -bottom-4 right-0 sm:right-2 w-[56%] aspect-[4/4.6] rounded-t-[110px] rounded-b-2xl overflow-hidden bg-white p-1.5 shadow-[0_22px_55px_rgba(251,20,67,0.16)] ring-1 ring-rose-200 z-30 group"
+                className="absolute -bottom-4 right-0 sm:right-2 w-[56%] aspect-[4/4.6] rounded-t-[110px] rounded-b-2xl overflow-hidden bg-white p-1.5 shadow-[0_16px_38px_rgba(0,0,0,0.1)] ring-1 ring-stone-200 z-30 group"
               >
-                <div className="w-full h-full rounded-t-[100px] rounded-b-xl overflow-hidden bg-purple-50">
+                <div className="w-full h-full rounded-t-[100px] rounded-b-xl overflow-hidden bg-[#FAF7F2]">
                   <img
                     src="/assets/chely/story-model-gift.png"
                     onError={(e) => {
                       e.currentTarget.src = '/assets/brand/abbhinandan-profile.jpg';
                     }}
                     alt="Happy client with luxury gift"
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-110"
                   />
                 </div>

@@ -46,15 +46,8 @@ export default function ChelyJourneyScallopSection() {
   return (
     <section
       ref={sectionRef}
-      className="h-full py-8 sm:py-11 lg:py-12 min-h-[calc(100vh-76px)] flex flex-col justify-center bg-[#FAF7F2] relative overflow-x-clip border-t border-stone-200/50"
+      className="h-full py-8 sm:py-11 lg:py-12 min-h-[calc(100vh-76px)] flex flex-col justify-center bg-white relative overflow-x-clip border-t border-stone-200/80"
     >
-      {/* Soft Centered Ambient Pink Halo behind Spotlight */}
-      <div
-        className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[460px] h-[460px] rounded-full opacity-55 blur-3xl"
-        style={{ background: 'radial-gradient(circle, #FEEAE6 0%, transparent 70%)' }}
-        aria-hidden="true"
-      />
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* 3-COLUMN SCULPTURAL STAGE (Top-Left Title • Center Spinning Medallion • Staggered-Right Card) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-6 items-center">
@@ -109,7 +102,7 @@ export default function ChelyJourneyScallopSection() {
                 }}
                 className="relative w-full h-full flex items-center justify-center will-change-transform"
               >
-                {/* Pink Spiral Doodle */}
+                {/* Subtle Crimson Flourish Doodle */}
                 <motion.div
                   style={{ y: doodleY }}
                   className="absolute -top-3 right-3 sm:right-6 w-24 sm:w-28 pointer-events-none z-20"
@@ -117,41 +110,20 @@ export default function ChelyJourneyScallopSection() {
                   <svg viewBox="0 0 100 60" fill="none">
                     <path
                       d="M 10 30 Q 30 5 50 30 T 90 30"
-                      stroke="#FFA6B6"
-                      strokeWidth="5"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M 5 45 Q 25 20 45 45 T 85 45"
-                      stroke="#FFA6B6"
+                      stroke="#FB1443"
+                      strokeOpacity="0.35"
                       strokeWidth="4"
                       strokeLinecap="round"
-                      opacity="0.7"
                     />
                   </svg>
                 </motion.div>
 
-                {/* Yellow Star Doodle */}
-                <div className="absolute top-1/2 -left-3 sm:-left-4 -translate-y-1/2 text-[#F4BE48] text-3xl sm:text-4xl pointer-events-none select-none z-20 animate-pulse">
+                {/* Champagne Gold Star Accent */}
+                <div className="absolute top-1/2 -left-3 sm:-left-4 -translate-y-1/2 text-[#D4AF37] text-2xl sm:text-3xl pointer-events-none select-none z-20">
                   ★
                 </div>
 
-                {/* Blue Curly Ribbon Doodle */}
-                <motion.div
-                  style={{ y: doodleY }}
-                  className="absolute -bottom-4 left-6 sm:left-8 w-28 sm:w-32 pointer-events-none z-20"
-                >
-                  <svg viewBox="0 0 120 70" fill="none">
-                    <path
-                      d="M 10 50 C 40 70, 70 10, 110 40"
-                      stroke="#BDE3F0"
-                      strokeWidth="6"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </motion.div>
-
-                {/* Outer Counter-Spinning Delicate Halo Ring */}
+                {/* Outer Counter-Spinning Delicate Ring */}
                 <motion.div
                   style={{ rotate: outerHaloRotate }}
                   className="absolute -inset-2 pointer-events-none z-0 opacity-75"
@@ -162,7 +134,7 @@ export default function ChelyJourneyScallopSection() {
                       cy="210"
                       r="204"
                       fill="none"
-                      stroke="#FFA6B6"
+                      stroke="#E7E5E4"
                       strokeWidth="2.5"
                       strokeDasharray="8 14"
                       strokeLinecap="round"
@@ -170,7 +142,7 @@ export default function ChelyJourneyScallopSection() {
                   </svg>
                 </motion.div>
 
-                {/* Scroll-Spinning Scallop Border Ring */}
+                {/* Scroll-Spinning Logo Crimson Scallop Ring */}
                 <motion.div
                   style={{ rotate: ringRotate }}
                   className="absolute inset-0 w-full h-full pointer-events-none z-10"
@@ -180,13 +152,13 @@ export default function ChelyJourneyScallopSection() {
                       cx="200"
                       cy="200"
                       r="185"
-                      fill="#FF3366"
-                      stroke="#FF3366"
+                      fill="#FB1443"
+                      stroke="#FB1443"
                       strokeWidth="12"
                       strokeDasharray="22 18"
                       strokeLinecap="round"
                     />
-                    <circle cx="200" cy="200" r="165" fill="none" stroke="#BDE3F0" strokeWidth="5" />
+                    <circle cx="200" cy="200" r="165" fill="none" stroke="#FAF7F2" strokeWidth="4" />
                   </svg>
                 </motion.div>
 
@@ -198,6 +170,8 @@ export default function ChelyJourneyScallopSection() {
                       e.currentTarget.src = '/assets/brand/media_1795501189686_d66ba8f8.jpg';
                     }}
                     alt="Delighted recipient with sweet hamper"
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
                   />
                 </div>
@@ -216,7 +190,7 @@ export default function ChelyJourneyScallopSection() {
                 x: rightCardX,
                 opacity: rightCardOpacity,
               }}
-              className="relative bg-white/95 rounded-[26px] p-5 sm:p-6 lg:p-7 border border-[#FEEAE6] shadow-[0_20px_50px_-14px_rgba(53,28,78,0.1)] text-center lg:text-left will-change-transform"
+              className="relative bg-[#FAF7F2] rounded-[26px] p-5 sm:p-6 lg:p-7 border border-stone-200/90 shadow-[0_14px_34px_rgba(0,0,0,0.06)] text-center lg:text-left will-change-transform"
             >
               <p className="text-stone-700 text-sm sm:text-base leading-relaxed font-sans font-light">
                 Want something special? You can fully customize your gift hamper with us. Tell us what items you want, your preferred box or basket style, and your budget. We will prepare the perfect gift hamper for your wedding, birthday, festival, or corporate event.

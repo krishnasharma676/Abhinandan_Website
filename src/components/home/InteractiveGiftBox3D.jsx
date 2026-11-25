@@ -70,15 +70,20 @@ export default function InteractiveGiftBox3D({
   className = '',
   themeKey = 'crimson-polka',
   isUnboxed = false,
+  isActive = true,
   onToggleUnbox,
 }) {
   const mountRef = useRef(null);
-  const stateRef = useRef({ isUnboxed, themeKey });
+  const stateRef = useRef({ isUnboxed, themeKey, isActive });
   const materialsRef = useRef(null);
 
   useEffect(() => {
     stateRef.current.isUnboxed = isUnboxed;
   }, [isUnboxed]);
+
+  useEffect(() => {
+    stateRef.current.isActive = isActive;
+  }, [isActive]);
 
   // Dynamically update 3D WebGL textures/materials when theme pill changes
   useEffect(() => {
@@ -111,11 +116,15 @@ export default function InteractiveGiftBox3D({
     camera.position.set(0, 0.9, 6.2);
     camera.lookAt(0, 0.05, 0);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    const isCoarse = window.matchMedia('(pointer: coarse)').matches;
+    const renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: true,
+      powerPreference: 'high-performance',
+    });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isCoarse ? 1.5 : 2));
+    renderer.shadowMap.enabled = false;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.18;
     renderer.domElement.style.display = 'block';
@@ -437,10 +446,18 @@ export default function InteractiveGiftBox3D({
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
 
-    let animationFrameId;
+    let animationFrameId = null;
+    let isVisible = true;
     const clock = new THREE.Clock();
 
+    const shouldRender = () =>
+      isVisible && stateRef.current.isActive && document.visibilityState !== 'hidden';
+
     const animate = () => {
+      if (!shouldRender()) {
+        animationFrameId = null;
+        return;
+      }
       animationFrameId = requestAnimationFrame(animate);
       const elapsedTime = clock.getElapsedTime();
       const unboxed = stateRef.current.isUnboxed;
@@ -496,6 +513,29 @@ export default function InteractiveGiftBox3D({
       renderer.render(scene, camera);
     };
 
+    const resumeLoop = () => {
+      if (animationFrameId === null && shouldRender()) {
+        clock.getDelta();
+        animationFrameId = requestAnimationFrame(animate);
+      }
+    };
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisible = entry.isIntersecting;
+        if (isVisible) resumeLoop();
+      },
+      { threshold: 0.01 }
+    );
+    observer.observe(mount);
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') resumeLoop();
+    };
+    const handlePointerResume = () => resumeLoop();
+    document.addEventListener('visibilitychange', handleVisibility);
+    window.addEventListener('scroll', handlePointerResume, { passive: true });
+
     animate();
 
     const handleResize = () => {
@@ -510,6 +550,9 @@ export default function InteractiveGiftBox3D({
     window.addEventListener('resize', handleResize);
 
     return () => {
+      observer.disconnect();
+      document.removeEventListener('visibilitychange', handleVisibility);
+      window.removeEventListener('scroll', handlePointerResume);
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('pointermove', handlePointerMove);
@@ -517,7 +560,7 @@ export default function InteractiveGiftBox3D({
       mount.removeEventListener('pointerdown', handlePointerDown);
       mount.removeEventListener('mouseenter', handleMouseEnter);
       mount.removeEventListener('mouseleave', handleMouseLeave);
-      cancelAnimationFrame(animationFrameId);
+      if (animationFrameId !== null) cancelAnimationFrame(animationFrameId);
 
       if (mount.contains(renderer.domElement)) {
         mount.removeChild(renderer.domElement);

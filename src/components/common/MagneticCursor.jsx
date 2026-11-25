@@ -2,16 +2,14 @@ import React, { useEffect, useRef, useState } from 'react';
 
 /**
  * Custom Magnetic Interactive Cursor for fine-pointer desktop screens.
- * Smooth 60fps rAF lerping with zero state churn on mousemove.
- * Morphs into action pill badges whenever hovering nodes with data-cursor="LABEL".
+ * Disabled automatically on touch devices (iOS / Android) with zero event overhead.
  */
 export default function MagneticCursor() {
   const dotRef = useRef(null);
   const ringRef = useRef(null);
-  const glowRef = useRef(null);
+  const pressedRef = useRef(false);
   const [enabled, setEnabled] = useState(false);
   const [cursorLabel, setCursorLabel] = useState('');
-  const [isPressed, setIsPressed] = useState(false);
   const [isPointerInteractive, setIsPointerInteractive] = useState(false);
 
   useEffect(() => {
@@ -25,8 +23,6 @@ export default function MagneticCursor() {
     let mouseY = window.innerHeight / 2;
     let ringX = mouseX;
     let ringY = mouseY;
-    let glowX = mouseX;
-    let glowY = mouseY;
     let visible = false;
     let rafId;
 
@@ -37,7 +33,6 @@ export default function MagneticCursor() {
         visible = true;
         if (dotRef.current) dotRef.current.style.opacity = '1';
         if (ringRef.current) ringRef.current.style.opacity = '1';
-        if (glowRef.current) glowRef.current.style.opacity = '1';
       }
 
       const target = e.target;
@@ -49,33 +44,32 @@ export default function MagneticCursor() {
       }
     };
 
-    const handleMouseDown = () => setIsPressed(true);
-    const handleMouseUp = () => setIsPressed(false);
+    const handleMouseDown = () => {
+      pressedRef.current = true;
+    };
+    const handleMouseUp = () => {
+      pressedRef.current = false;
+    };
     const handleMouseLeave = () => {
       visible = false;
       if (dotRef.current) dotRef.current.style.opacity = '0';
       if (ringRef.current) ringRef.current.style.opacity = '0';
-      if (glowRef.current) glowRef.current.style.opacity = '0';
     };
 
     const tick = () => {
       ringX += (mouseX - ringX) * 0.16;
       ringY += (mouseY - ringY) * 0.16;
-      glowX += (mouseX - glowX) * 0.08;
-      glowY += (mouseY - glowY) * 0.08;
+      const pressed = pressedRef.current;
 
       if (dotRef.current) {
         dotRef.current.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0) translate(-50%, -50%) scale(${
-          isPressed ? 0.65 : 1
+          pressed ? 0.65 : 1
         })`;
       }
       if (ringRef.current) {
         ringRef.current.style.transform = `translate3d(${ringX.toFixed(1)}px, ${ringY.toFixed(1)}px, 0) translate(-50%, -50%) scale(${
-          isPressed ? 0.88 : 1
+          pressed ? 0.88 : 1
         })`;
-      }
-      if (glowRef.current) {
-        glowRef.current.style.transform = `translate3d(${glowX.toFixed(1)}px, ${glowY.toFixed(1)}px, 0) translate(-50%, -50%)`;
       }
 
       rafId = requestAnimationFrame(tick);
@@ -94,32 +88,20 @@ export default function MagneticCursor() {
       document.removeEventListener('mouseleave', handleMouseLeave);
       cancelAnimationFrame(rafId);
     };
-  }, [isPressed]);
+  }, []);
 
   if (!enabled) return null;
 
   return (
     <>
-      {/* Subtle Ambient Rose Spotlight Glow */}
-      <div
-        ref={glowRef}
-        className="fixed top-0 left-0 w-72 h-72 rounded-full pointer-events-none z-[5] opacity-0 transition-opacity duration-300"
-        style={{
-          background:
-            'radial-gradient(circle, rgba(251,20,67,0.07) 0%, rgba(255,166,182,0.04) 45%, transparent 72%)',
-        }}
-        aria-hidden="true"
-      />
-
-      {/* Outer Ring / Label Badge */}
       <div
         ref={ringRef}
         className={`fixed top-0 left-0 pointer-events-none z-[90] opacity-0 transition-[width,height,background-color,border-color,opacity] duration-200 flex items-center justify-center rounded-full ${
           cursorLabel
-            ? 'px-3.5 h-8 min-w-[74px] bg-[#FB1443] text-white shadow-lg shadow-[#FB1443]/30 border border-white/60'
+            ? 'px-3.5 h-8 min-w-[74px] bg-[#FB1443] text-white shadow-sm border border-white/60'
             : isPointerInteractive
-            ? 'w-11 h-11 bg-[#FB1443]/10 border-2 border-[#FB1443]/70'
-            : 'w-9 h-9 bg-transparent border border-[#FB1443]/45'
+            ? 'w-10 h-10 bg-stone-900/5 border-2 border-[#FB1443]/70'
+            : 'w-8 h-8 bg-transparent border border-[#FB1443]/40'
         }`}
         aria-hidden="true"
       >
@@ -130,7 +112,6 @@ export default function MagneticCursor() {
         )}
       </div>
 
-      {/* Inner Crisp Crimson Dot */}
       <div
         ref={dotRef}
         className={`fixed top-0 left-0 w-2 h-2 rounded-full bg-[#FB1443] pointer-events-none z-[91] opacity-0 transition-opacity duration-150 ${
@@ -141,4 +122,3 @@ export default function MagneticCursor() {
     </>
   );
 }
-
