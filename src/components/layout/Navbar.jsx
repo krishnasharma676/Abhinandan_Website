@@ -63,7 +63,7 @@ export default function Navbar() {
     setIsMobileMenuOpen(false);
     if (link.href === '#hero') {
       if (window.__lenis) {
-        window.__lenis.scrollTo(0, { duration: 1.05 });
+        window.__lenis.scrollTo(0, { duration: 1.45 });
       } else {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
@@ -72,21 +72,21 @@ export default function Navbar() {
     if (link.href === '#hampers') {
       const heroTrigger = ScrollTrigger.getById('hero-stage');
       if (heroTrigger && window.__lenis) {
-        window.__lenis.scrollTo(heroTrigger.end + 2, { duration: 1.05 });
+        window.__lenis.scrollTo(heroTrigger.end + 2, { duration: 1.45 });
         return;
       }
     }
     if (link.href === '#story') {
       const storyTrigger = ScrollTrigger.getById('story-journey-stage');
       if (storyTrigger && window.__lenis) {
-        window.__lenis.scrollTo(storyTrigger.start + 2, { duration: 1.05 });
+        window.__lenis.scrollTo(storyTrigger.start + 2, { duration: 1.45 });
         return;
       }
     }
     const el = document.querySelector(link.href);
     if (el) {
       if (window.__lenis) {
-        window.__lenis.scrollTo(el, { offset: -76, duration: 1.05 });
+        window.__lenis.scrollTo(el, { offset: -76, duration: 1.45 });
       } else {
         el.scrollIntoView({ behavior: 'smooth' });
       }
@@ -198,7 +198,7 @@ export default function Navbar() {
               onClick={() => setIsMobileMenuOpen(false)}
             />
 
-            <div className="fixed inset-y-0 left-0 w-full max-w-xs bg-white shadow-luxury p-6 flex flex-col justify-between overflow-y-auto z-10">
+            <div data-lenis-prevent className="fixed inset-y-0 left-0 w-full max-w-xs bg-white shadow-luxury p-6 flex flex-col justify-between overflow-y-auto z-10">
               <div>
                 <div className="flex items-center justify-between pb-4 border-b border-stone-100">
                   <img

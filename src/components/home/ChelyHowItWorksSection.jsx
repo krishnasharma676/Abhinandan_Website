@@ -1,14 +1,15 @@
 import React, { useRef, useState, useEffect } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
   motion,
-  useScroll,
-  useTransform,
   useInView,
-  useSpring,
   useReducedMotion,
 } from 'framer-motion';
 import { Package, Sparkles, PenLine, Truck, ArrowRight } from 'lucide-react';
 import SectionHeading from '../common/SectionHeading';
+
+gsap.registerPlugin(ScrollTrigger);
 
 /* ─── Brand palette ─── */
 const CRIMSON = '#FB1443';
@@ -91,22 +92,46 @@ function CountUp({ target, duration = 1.4 }) {
   return <span ref={ref}>{display}</span>;
 }
 
-/* ─── Scroll-driven vertical spine (desktop only) ─── */
+/* ─── Scroll-driven vertical spine (desktop only, synced to GSAP ScrollTrigger) ─── */
 function SpineProgress({ sectionRef }) {
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start 65%', 'end 35%'],
-  });
-  const scaleY = useSpring(scrollYProgress, { stiffness: 90, damping: 22, restDelta: 0.001 });
+  const fillRef = useRef(null);
+
+  useEffect(() => {
+    const triggerEl = sectionRef.current;
+    const fillEl = fillRef.current;
+    if (!triggerEl || !fillEl) return;
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        fillEl,
+        { scaleY: 0 },
+        {
+          scaleY: 1,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: triggerEl,
+            start: 'top 65%',
+            end: 'bottom 38%',
+            scrub: 0.38,
+            invalidateOnRefresh: true,
+          },
+        }
+      );
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, [sectionRef]);
+
   return (
     <div className="relative w-full h-full flex justify-center">
       {/* Track */}
       <div className="absolute top-0 bottom-0 w-[2px] rounded-full" style={{ background: BLUSH }} />
       {/* Fill */}
-      <motion.div
-        className="absolute top-0 bottom-0 w-[2px] rounded-full origin-top"
+      <div
+        ref={fillRef}
+        className="absolute top-0 bottom-0 w-[2px] rounded-full origin-top will-change-transform"
         style={{
-          scaleY,
+          transform: 'scaleY(0)',
           background: `linear-gradient(to bottom, ${CRIMSON} 0%, ${PLUM} 100%)`,
         }}
       />
@@ -282,18 +307,39 @@ function StepCard({ step, index }) {
 /* ─── Main component ─── */
 export default function ChelyHowItWorksSection() {
   const sectionRef  = useRef(null);
+  const contentRef  = useRef(null);
   const headingRef  = useRef(null);
   const stepsRef    = useRef(null);
   const isHeadingIn = useInView(headingRef, { once: true, amount: 0.1 });
   const prefersReduced = useReducedMotion();
 
-  const { scrollYProgress: exitProgress } = useScroll({
-    target: sectionRef,
-    offset: ['end 90%', 'end 16%'],
-  });
-  const exitScale = useTransform(exitProgress, [0, 1], [1, 0.94]);
-  const exitOpacity = useTransform(exitProgress, [0, 1], [1, 0.45]);
-  const exitY = useTransform(exitProgress, [0, 1], [0, -16]);
+  useEffect(() => {
+    const sectionEl = sectionRef.current;
+    const contentEl = contentRef.current;
+    if (!sectionEl || !contentEl || prefersReduced) return;
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        contentEl,
+        { scale: 1, opacity: 1, y: 0 },
+        {
+          scale: 0.93,
+          opacity: 0.45,
+          y: -18,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: sectionEl,
+            start: 'bottom 88%',
+            end: 'bottom 18%',
+            scrub: 0.38,
+            invalidateOnRefresh: true,
+          },
+        }
+      );
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, [prefersReduced]);
 
   return (
     <section
@@ -301,12 +347,8 @@ export default function ChelyHowItWorksSection() {
       id="how-it-works"
       className="relative overflow-hidden bg-[#FAF7F2] border-t border-stone-200/80"
     >
-      <motion.div
-        style={
-          prefersReduced
-            ? undefined
-            : { scale: exitScale, opacity: exitOpacity, y: exitY }
-        }
+      <div
+        ref={contentRef}
         className="relative z-10 max-w-5xl mx-auto px-4 sm:px-8 lg:px-10 py-14 sm:py-20 will-change-transform origin-bottom"
       >
 
@@ -389,7 +431,7 @@ export default function ChelyHowItWorksSection() {
             </motion.span>
           </a>
         </motion.div>
-      </motion.div>
+      </div>
     </section>
   );
 }

@@ -48,10 +48,28 @@ export default function App() {
     }
 
     const lenis = new Lenis({
-      duration: 1.0,
+      duration: 1.55,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
-      syncTouch: false,
+      wheelMultiplier: 0.56,
+      syncTouch: true,
+      touchMultiplier: 0.62,
+      syncTouchLerp: 0.048,
+      touchInertiaExponent: 0.86,
+      allowNestedScroll: true,
+      virtualScroll: (data) => {
+        const { deltaX, deltaY, event } = data;
+        // Preserve horizontal touch swipes for carousels, 3D gift box, and Instagram fan deck
+        if (event?.type?.startsWith('touch') && Math.abs(deltaX) > Math.abs(deltaY)) {
+          return false;
+        }
+        // Softly cap extreme swipe/wheel bursts so transitions always play out smoothly
+        const maxStep = event?.type?.startsWith('touch') ? 34 : 76;
+        if (Math.abs(deltaY) > maxStep) {
+          data.deltaY = Math.sign(deltaY) * maxStep;
+        }
+        return true;
+      },
     });
 
     window.__lenis = lenis;
@@ -72,7 +90,14 @@ export default function App() {
     };
 
     const rafRefresh = requestAnimationFrame(refreshTriggers);
+    const settleTimer = setTimeout(() => {
+      ScrollTrigger.refresh();
+      window.dispatchEvent(new Event('resize'));
+    }, 400);
     window.addEventListener('load', refreshTriggers);
+    if (document.fonts?.ready) {
+      document.fonts.ready.then(refreshTriggers).catch(() => {});
+    }
 
     // Intercept native anchor links (#hampers, #customize, #story, etc.) so Lenis + ScrollTrigger stay synced
     const handleAnchorClick = (e) => {
@@ -85,7 +110,7 @@ export default function App() {
         const heroTrigger = ScrollTrigger.getById('hero-stage');
         if (heroTrigger) {
           e.preventDefault();
-          lenis.scrollTo(heroTrigger.end + 2, { duration: 1.05 });
+          lenis.scrollTo(heroTrigger.end + 2, { duration: 1.45 });
           return;
         }
       }
@@ -93,19 +118,20 @@ export default function App() {
         const storyTrigger = ScrollTrigger.getById('story-journey-stage');
         if (storyTrigger) {
           e.preventDefault();
-          lenis.scrollTo(storyTrigger.start + 2, { duration: 1.05 });
+          lenis.scrollTo(storyTrigger.start + 2, { duration: 1.45 });
           return;
         }
       }
       const target = document.querySelector(hash);
       if (!target) return;
       e.preventDefault();
-      lenis.scrollTo(target, { offset: -76, duration: 1.05 });
+      lenis.scrollTo(target, { offset: -76, duration: 1.45 });
     };
     document.addEventListener('click', handleAnchorClick);
 
     return () => {
       cancelAnimationFrame(rafRefresh);
+      clearTimeout(settleTimer);
       window.removeEventListener('beforeunload', resetScrollOnUnload);
       window.removeEventListener('pagehide', resetScrollOnUnload);
       window.removeEventListener('load', refreshTriggers);

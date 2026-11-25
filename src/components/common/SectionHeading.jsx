@@ -1,9 +1,9 @@
-import React, { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import React from 'react';
+import { motion } from 'framer-motion';
 
 /**
  * Shared animated editorial section heading matching the signature
- * Abhinandan display serif + pulsing pink sparkle + scroll-drawn crimson ribbon underline.
+ * Abhinandan display serif + crimson sparkle + scroll-drawn crimson ribbon underline.
  */
 export default function SectionHeading({
   children,
@@ -12,14 +12,6 @@ export default function SectionHeading({
   headingClassName = '',
   trailing = null,
 }) {
-  const containerRef = useRef(null);
-
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ['start 95%', 'start 62%'],
-  });
-  const underlineDraw = useTransform(scrollYProgress, [0, 1], [0, 1]);
-
   const alignWrapper =
     align === 'left'
       ? 'text-left'
@@ -36,7 +28,6 @@ export default function SectionHeading({
 
   return (
     <motion.div
-      ref={containerRef}
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.3 }}
@@ -68,7 +59,10 @@ export default function SectionHeading({
               stroke="#FB1443"
               strokeWidth="3"
               strokeLinecap="round"
-              style={{ pathLength: underlineDraw }}
+              initial={{ pathLength: 0 }}
+              whileInView={{ pathLength: 1 }}
+              viewport={{ once: true, amount: 0.5 }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             />
           </svg>
         </div>
