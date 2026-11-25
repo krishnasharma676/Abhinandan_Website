@@ -1,61 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import { X, MessageCircle, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
 import { BRAND_CONFIG } from '../../config/brand';
-import FloatingDecoration from '../common/FloatingDecoration';
-
-// Function to generate exact postage stamp path with scalloped teeth along all 4 edges (Matching Instagram section)
-function getStampPath(w = 320, h = 340, r = 5, spacing = 15) {
-  let d = 'M 0 0 ';
-
-  // Top edge notches
-  const topCount = Math.floor((w - 24) / spacing);
-  const topStartX = (w - (topCount - 1) * spacing) / 2;
-  d += `H ${(topStartX - r).toFixed(1)} `;
-  for (let i = 0; i < topCount; i++) {
-    const cx = topStartX + i * spacing;
-    d += `A ${r} ${r} 0 0 0 ${(cx + r).toFixed(1)} 0 `;
-    if (i < topCount - 1) d += `H ${(cx + spacing - r).toFixed(1)} `;
-  }
-  d += `H ${w} `;
-
-  // Right edge notches
-  const rightCount = Math.floor((h - 24) / spacing);
-  const rightStartY = (h - (rightCount - 1) * spacing) / 2;
-  d += `V ${(rightStartY - r).toFixed(1)} `;
-  for (let i = 0; i < rightCount; i++) {
-    const cy = rightStartY + i * spacing;
-    d += `A ${r} ${r} 0 0 0 ${w} ${(cy + r).toFixed(1)} `;
-    if (i < rightCount - 1) d += `V ${(cy + spacing - r).toFixed(1)} `;
-  }
-  d += `V ${h} `;
-
-  // Bottom edge notches
-  d += `H ${(topStartX + (topCount - 1) * spacing + r).toFixed(1)} `;
-  for (let i = topCount - 1; i >= 0; i--) {
-    const cx = topStartX + i * spacing;
-    d += `A ${r} ${r} 0 0 0 ${(cx - r).toFixed(1)} ${h} `;
-    if (i > 0) d += `H ${(cx - spacing + r).toFixed(1)} `;
-  }
-  d += 'H 0 ';
-
-  // Left edge notches
-  d += `V ${(rightStartY + (rightCount - 1) * spacing + r).toFixed(1)} `;
-  for (let i = rightCount - 1; i >= 0; i--) {
-    const cy = rightStartY + i * spacing;
-    d += `A ${r} ${r} 0 0 0 0 ${(cy - r).toFixed(1)} `;
-    if (i > 0) d += `V ${(cy - spacing + r).toFixed(1)} `;
-  }
-  d += 'Z';
-  return d;
-}
-
-const STAMP_PATH = getStampPath(320, 340, 5, 15);
+import SectionHeading from '../common/SectionHeading';
 
 const PRODUCTS = [
   {
     id: 'hamper-1',
     title: 'ROYAL WOODEN DRY FRUIT CHEST',
-    category: 'GIFT BOX',
     price: 3499,
     image: '/assets/chely/hamper-product-1.png',
     fallbackImage: '/assets/brand/royal-whispers-trousseau.png',
@@ -63,7 +16,6 @@ const PRODUCTS = [
   {
     id: 'hamper-2',
     title: 'ROSE GOLD VELVET GIFT BOX',
-    category: 'GIFT BOX',
     price: 2850,
     image: '/assets/chely/hamper-product-2.png',
     fallbackImage: '/assets/brand/diwali-corporate-basket.png',
@@ -71,7 +23,6 @@ const PRODUCTS = [
   {
     id: 'hamper-3',
     title: 'PEARL WICKER GIFT BASKET',
-    category: 'GIFT BASKET',
     price: 2299,
     image: '/assets/chely/hamper-product-3.png',
     fallbackImage: '/assets/brand/diwali-dryfruit-thal.png',
@@ -79,305 +30,454 @@ const PRODUCTS = [
   {
     id: 'hamper-4',
     title: 'SWEET & DRY FRUIT CELEBRATION BOX',
-    category: 'FESTIVE BOX',
     price: 1899,
     image: '/assets/chely/hamper-product-4.png',
     fallbackImage: '/assets/brand/media_1795501189087_5c81e18a.jpg',
   },
+  {
+    id: 'hamper-5',
+    title: 'TROUSSEAU LEGACY HAMPER',
+    price: 4299,
+    image: '/assets/hampers/hamper-1.jpg',
+    fallbackImage: '/assets/chely/hamper-product-1.png',
+  },
+  {
+    id: 'hamper-6',
+    title: 'CORPORATE GRAND HAMPER',
+    price: 3199,
+    image: '/assets/hampers/hamper-2.jpg',
+    fallbackImage: '/assets/chely/hamper-product-2.png',
+  },
 ];
 
-// Product sequence for Mobile Scroll Parallax (6 cards per row for seamless horizontal glide)
-const ROW1_PRODUCTS = [PRODUCTS[0], PRODUCTS[1], PRODUCTS[2], PRODUCTS[3], PRODUCTS[0], PRODUCTS[1]];
-const ROW2_PRODUCTS = [PRODUCTS[2], PRODUCTS[3], PRODUCTS[0], PRODUCTS[1], PRODUCTS[2], PRODUCTS[3]];
+function getCircularOffset(index, activeIdx, total) {
+  let diff = index - activeIdx;
+  if (diff > total / 2) diff -= total;
+  if (diff < -total / 2) diff += total;
+  return diff;
+}
 
-export default function ChelyProductsShowcase() {
-  const [startIndex, setStartIndex] = useState(0);
-  const sectionRef = useRef(null);
-  const row1Ref = useRef(null);
-  const row2Ref = useRef(null);
+function ArchCoverflowCard({
+  product,
+  offset,
+  isMobile,
+  isTablet,
+  onSelectCenter,
+  onInspect,
+}) {
+  const cardTiltRef = useRef(null);
+  const glossRef = useRef(null);
+  const isActive = offset === 0;
+  const absOff = Math.abs(offset);
 
-  // Mobile Scroll Parallax: Row 1 swipes Right, Row 2 swipes Left as you scroll down
-  useEffect(() => {
-    let rafId;
-    const handleScroll = () => {
-      cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(() => {
-        if (!sectionRef.current) return;
-        const rect = sectionRef.current.getBoundingClientRect();
-        const vh = window.innerHeight || 800;
+  // Hide back card cleanly behind opaque foreground flankers
+  const isHidden = isMobile ? absOff >= 2 : absOff >= 3;
 
-        // Progress goes from 0 (section enters bottom) to 1 (section leaves top)
-        const totalDist = vh + rect.height;
-        const currentDist = vh - rect.top;
-        const progress = Math.max(0, Math.min(1, currentDist / totalDist));
+  // Responsive 3D Arc Positioning
+  const xStep = isMobile ? 162 : isTablet ? 215 : 275;
+  const x = absOff >= 3 ? 0 : offset * xStep;
+  const y = absOff === 0 ? 0 : absOff === 1 ? (isMobile ? 18 : 22) : absOff === 2 ? 52 : 68;
+  const scale = absOff === 0 ? 1 : absOff === 1 ? (isMobile ? 0.8 : 0.85) : absOff === 2 ? 0.68 : 0.45;
+  const rotateY = absOff >= 3 || offset === 0 ? 0 : -offset * (isMobile ? 18 : 20);
+  const rotateZ = absOff >= 3 || offset === 0 ? 0 : offset * (isMobile ? 3.5 : 3);
+  const zIndex = 30 - absOff * 10;
+  const opacity = isHidden ? 0 : absOff === 0 ? 1 : absOff === 1 ? (isMobile ? 0.88 : 0.98) : 0.68;
 
-        // Travel range in pixels
-        // Row 1: shifts horizontally to the RIGHT as you scroll down
-        const travel = 160;
-        const shift1 = (progress - 0.5) * travel;
-        // Row 2: shifts horizontally to the LEFT as you scroll down
-        const shift2 = (0.5 - progress) * travel;
+  const handleMouseMove = (e) => {
+    if (!isActive || isMobile) return;
+    const el = cardTiltRef.current;
+    const gloss = glossRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const px = (e.clientX - rect.left) / rect.width;
+    const py = (e.clientY - rect.top) / rect.height;
+    const rx = (0.5 - py) * 12;
+    const ry = (px - 0.5) * 12;
 
-        if (row1Ref.current) {
-          row1Ref.current.style.transform = `translate3d(${shift1.toFixed(1)}px, 0px, 0px)`;
-        }
-        if (row2Ref.current) {
-          row2Ref.current.style.transform = `translate3d(${shift2.toFixed(1)}px, 0px, 0px)`;
-        }
-      });
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      cancelAnimationFrame(rafId);
-    };
-  }, []);
-
-  const prevSlide = () => {
-    setStartIndex((prev) => (prev === 0 ? PRODUCTS.length - 3 : prev - 1));
+    el.style.transform = `rotateX(${rx.toFixed(1)}deg) rotateY(${ry.toFixed(1)}deg) translateZ(10px)`;
+    if (gloss) {
+      gloss.style.opacity = '1';
+      gloss.style.background = `radial-gradient(circle at ${px * 100}% ${
+        py * 100
+      }%, rgba(255,255,255,0.45) 0%, rgba(251,20,67,0.08) 45%, transparent 75%)`;
+    }
   };
 
-  const nextSlide = () => {
-    setStartIndex((prev) => (prev >= PRODUCTS.length - 3 ? 0 : prev + 1));
+  const handleMouseLeave = () => {
+    if (cardTiltRef.current) {
+      cardTiltRef.current.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px)';
+    }
+    if (glossRef.current) {
+      glossRef.current.style.opacity = '0';
+    }
   };
 
   return (
-    <section ref={sectionRef} id="hampers" className="py-16 sm:py-24 bg-[#FAF7F2] relative overflow-hidden">
-
-      {/* Top-Left Floating Luxury Gift Box (Tucked safely in corner on mobile) */}
-      <FloatingDecoration
-        type="gift-box"
-        size={115}
-        mobileSize={48}
-        speed={0.35}
-        delay={0.2}
-        duration={5.6}
-        rotate={-12}
-        className="absolute left-1 sm:left-6 lg:left-10 top-1.5 sm:top-12 z-30 opacity-90 sm:opacity-95"
+    <motion.div
+      initial={false}
+      animate={{
+        x,
+        y,
+        scale,
+        rotateY,
+        rotateZ,
+        opacity,
+      }}
+      transition={{
+        type: 'spring',
+        stiffness: 230,
+        damping: 26,
+        mass: 0.9,
+      }}
+      style={{
+        zIndex,
+        transformPerspective: 1300,
+        transformStyle: 'preserve-3d',
+        pointerEvents: isHidden ? 'none' : 'auto',
+      }}
+      onClick={() => {
+        if (isActive) {
+          onInspect(product);
+        } else {
+          onSelectCenter();
+        }
+      }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      data-cursor={isActive ? 'VIEW' : 'SELECT'}
+      role="button"
+      tabIndex={isHidden ? -1 : 0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          if (isActive) onInspect(product);
+          else onSelectCenter();
+        }
+      }}
+      className="absolute top-0 w-[250px] sm:w-[290px] lg:w-[310px] cursor-pointer select-none"
+    >
+      {/* Active Spotlight Floor Bloom */}
+      <div
+        className={`absolute -inset-x-4 -bottom-5 h-10 rounded-full blur-xl transition-opacity duration-500 pointer-events-none ${
+          isActive ? 'opacity-70 bg-[#FB1443]/20' : 'opacity-0'
+        }`}
       />
-      {/* Bottom-Right Floating Pistas Jar (Tucked safely in bottom corner) */}
-      <FloatingDecoration
-        type="pistas-jar"
-        size={105}
-        mobileSize={46}
-        speed={0.32}
-        delay={1.1}
-        duration={5.2}
-        rotate={10}
-        className="absolute right-1 sm:right-6 lg:right-10 bottom-1.5 sm:bottom-12 z-30 opacity-90 sm:opacity-95"
-      />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      {/* Interactive 3D Royal Arch Frame Card */}
+      <div
+        ref={cardTiltRef}
+        className={`relative bg-white rounded-t-[155px] rounded-b-[26px] p-2.5 sm:p-3 pb-4 transition-all duration-300 ${
+          isActive
+            ? 'shadow-[0_24px_55px_-12px_rgba(53,28,78,0.18)] ring-2 ring-[#FB1443]/25'
+            : 'shadow-[0_14px_30px_-10px_rgba(0,0,0,0.1)] ring-1 ring-stone-200/80 hover:ring-[#FFA6B6]'
+        }`}
+        style={{ transformStyle: 'preserve-3d' }}
+      >
+        {/* Inner Arched Image Stage */}
+        <div className="relative w-full h-[220px] sm:h-[245px] lg:h-[260px] rounded-t-[142px] rounded-b-xl overflow-hidden bg-[#FAF7F2] group">
+          <img
+            src={product.image}
+            onError={(e) => {
+              e.currentTarget.src = product.fallbackImage;
+            }}
+            alt={product.title}
+            draggable="false"
+            className={`w-full h-full object-cover object-center transition-transform duration-700 ease-out ${
+              isActive ? 'group-hover:scale-110' : 'scale-100'
+            }`}
+          />
 
-        {/* Section Heading (Clearance on mobile so corner decoration never overlaps) */}
-        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16 pt-5 sm:pt-0">
-          <h2 className="font-serif text-3xl sm:text-4xl md:text-[46px] font-normal text-stone-900 leading-[1.2] tracking-tight">
-            Explore our best gift hampers
-          </h2>
-        </div>
-
-        {/* ========================================================
-            MOBILE VIEW: 2-Row Scroll-Driven Parallax Showcase (< sm)
-            - Row 1: Swipes horizontally to the RIGHT as you scroll down
-            - Row 2: Swipes horizontally to the LEFT as you scroll down
-        ======================================================== */}
-        <div className="block sm:hidden space-y-4 overflow-hidden -mx-4 px-2 py-1">
-          
-          {/* Row 1: Moves right on scroll */}
+          {/* Soft Silk Specular Glare */}
           <div
-            ref={row1Ref}
-            className="flex gap-3 will-change-transform -ml-24"
+            ref={glossRef}
+            className="absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-300"
+          />
+
+          {/* Subtle Zoom Trigger Icon on Active Card Hover / Tap */}
+          {isActive && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onInspect(product);
+              }}
+              aria-label={`Zoom ${product.title}`}
+              className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-white/90 hover:bg-[#FB1443] text-[#351C4E] hover:text-white flex items-center justify-center shadow-md transition-all duration-200 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 sm:scale-90 sm:group-hover:scale-100"
+            >
+              <ZoomIn className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
+        {/* Clean Minimal Product Meta + WhatsApp Action */}
+        <div className="pt-3.5 px-2 text-center space-y-1.5">
+          <h3
+            className={`font-sans font-bold text-xs sm:text-sm tracking-wider uppercase line-clamp-1 transition-colors ${
+              isActive ? 'text-[#351C4E]' : 'text-stone-800'
+            }`}
           >
-            {ROW1_PRODUCTS.map((product, idx) => (
-              <a
-                key={`mob-r1-${product.id}-${idx}`}
-                href={`https://wa.me/${BRAND_CONFIG.whatsapp.number}?text=${encodeURIComponent(
-                  `Hi Abhinandan Gifting! I would like to order "${product.title}" (${BRAND_CONFIG.currency}${product.price}). Please share details.`
-                )}`}
-                target="_blank"
-                rel="noreferrer"
-                className="shrink-0 w-[148px] flex flex-col items-center text-center select-none active:scale-95 transition-transform"
-              >
-                <div className="relative w-full drop-shadow-[0_8px_18px_rgba(0,0,0,0.07)] mb-2">
-                  <svg
-                    viewBox="0 0 320 340"
-                    className="w-full h-auto overflow-visible select-none pointer-events-none block"
-                  >
-                    <defs>
-                      <clipPath id={`mob-stamp-r1-${idx}`}>
-                        <rect x="20" y="20" width="280" height="300" rx="3" />
-                      </clipPath>
-                    </defs>
-                    <path d={STAMP_PATH} fill="#FFFFFF" />
-                    <image
-                      href={product.image}
-                      x="20"
-                      y="20"
-                      width="280"
-                      height="300"
-                      preserveAspectRatio="xMidYMid slice"
-                      clipPath={`url(#mob-stamp-r1-${idx})`}
-                    />
-                  </svg>
-                </div>
+            {product.title}
+          </h3>
 
-                <h3 className="font-sans font-bold text-[11px] tracking-wider text-stone-900 uppercase mb-0.5 line-clamp-1 px-1">
-                  {product.title}
-                </h3>
+          <p className="font-sans font-bold text-base sm:text-lg text-[#A31352]">
+            {BRAND_CONFIG.currency}
+            {product.price.toLocaleString()}
+          </p>
 
-                <p className="font-sans font-bold text-xs text-[#A31352]">
-                  {BRAND_CONFIG.currency}{product.price.toLocaleString()}
-                </p>
-              </a>
-            ))}
-          </div>
-
-          {/* Row 2: Moves left on scroll */}
           <div
-            ref={row2Ref}
-            className="flex gap-3 will-change-transform -ml-12"
+            className={`pt-1.5 transition-all duration-300 ${
+              isActive
+                ? 'opacity-100 translate-y-0 max-h-12'
+                : 'opacity-0 translate-y-1 max-h-0 overflow-hidden pointer-events-none'
+            }`}
           >
-            {ROW2_PRODUCTS.map((product, idx) => (
-              <a
-                key={`mob-r2-${product.id}-${idx}`}
-                href={`https://wa.me/${BRAND_CONFIG.whatsapp.number}?text=${encodeURIComponent(
-                  `Hi Abhinandan Gifting! I would like to order "${product.title}" (${BRAND_CONFIG.currency}${product.price}). Please share details.`
-                )}`}
-                target="_blank"
-                rel="noreferrer"
-                className="shrink-0 w-[148px] flex flex-col items-center text-center select-none active:scale-95 transition-transform"
-              >
-                <div className="relative w-full drop-shadow-[0_8px_18px_rgba(0,0,0,0.07)] mb-2">
-                  <svg
-                    viewBox="0 0 320 340"
-                    className="w-full h-auto overflow-visible select-none pointer-events-none block"
-                  >
-                    <defs>
-                      <clipPath id={`mob-stamp-r2-${idx}`}>
-                        <rect x="20" y="20" width="280" height="300" rx="3" />
-                      </clipPath>
-                    </defs>
-                    <path d={STAMP_PATH} fill="#FFFFFF" />
-                    <image
-                      href={product.image}
-                      x="20"
-                      y="20"
-                      width="280"
-                      height="300"
-                      preserveAspectRatio="xMidYMid slice"
-                      clipPath={`url(#mob-stamp-r2-${idx})`}
-                    />
-                  </svg>
-                </div>
-
-                <h3 className="font-sans font-bold text-[11px] tracking-wider text-stone-900 uppercase mb-0.5 line-clamp-1 px-1">
-                  {product.title}
-                </h3>
-
-                <p className="font-sans font-bold text-xs text-[#A31352]">
-                  {BRAND_CONFIG.currency}{product.price.toLocaleString()}
-                </p>
-              </a>
-            ))}
+            <a
+              href={`https://wa.me/${BRAND_CONFIG.whatsapp.number}?text=${encodeURIComponent(
+                `Hi Abhinandan Gifting! I would like to order "${product.title}" (${BRAND_CONFIG.currency}${product.price}). Please share details.`
+              )}`}
+              target="_blank"
+              rel="noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="inline-flex items-center justify-center gap-1.5 w-full py-2 rounded-full bg-[#FB1443] hover:bg-[#E00E39] text-white font-bold text-[11px] sm:text-xs uppercase tracking-wider shadow-md shadow-[#FB1443]/25 transition-transform active:scale-95"
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              <span>Order on WhatsApp</span>
+            </a>
           </div>
-
         </div>
-
-        {/* ========================================================
-            DESKTOP VIEW: 3-Card Carousel with Arrows (>= sm)
-            - 100% UNCHANGED for Desktop
-        ======================================================== */}
-        <div className="hidden sm:block relative">
-
-          {/* Navigation Arrows (Chely Style) */}
-          <button
-            onClick={prevSlide}
-            aria-label="Previous products"
-            className="absolute -left-2 sm:-left-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white text-stone-700 shadow-md flex items-center justify-center hover:bg-[#FB1443] hover:text-white transition-all duration-200"
-          >
-            <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
-          </button>
-
-          <button
-            onClick={nextSlide}
-            aria-label="Next products"
-            className="absolute -right-2 sm:-right-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white text-stone-700 shadow-md flex items-center justify-center hover:bg-[#FB1443] hover:text-white transition-all duration-200"
-          >
-            <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
-          </button>
-
-          {/* Product Cards Grid: 3 cards in 1 row on Desktop */}
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {PRODUCTS.slice(startIndex, startIndex + 3).concat(
-              startIndex + 3 > PRODUCTS.length
-                ? PRODUCTS.slice(0, (startIndex + 3) % PRODUCTS.length)
-                : []
-            ).map((product, idx) => (
-              <div
-                key={`${product.id}-${idx}`}
-                className="group flex flex-col items-center text-center transition-transform duration-300 hover:-translate-y-2 hover:rotate-1"
-              >
-                {/* Authentic Scalloped Postage Stamp Container */}
-                <div className="relative w-full drop-shadow-[0_10px_25px_rgba(0,0,0,0.08)] mb-5 sm:mb-6">
-                  <svg
-                    viewBox="0 0 320 340"
-                    className="w-full h-auto overflow-visible select-none"
-                  >
-                    <defs>
-                      <clipPath id={`product-stamp-clip-${product.id}`}>
-                        <rect x="20" y="20" width="280" height="300" rx="3" />
-                      </clipPath>
-                    </defs>
-
-                    {/* Pure White Postage Stamp Frame with Scalloped Perforations */}
-                    <path d={STAMP_PATH} fill="#FFFFFF" />
-
-                    {/* Inner Product Photo */}
-                    <image
-                      href={product.image}
-                      x="20"
-                      y="20"
-                      width="280"
-                      height="300"
-                      preserveAspectRatio="xMidYMid slice"
-                      clipPath={`url(#product-stamp-clip-${product.id})`}
-                    />
-                  </svg>
-
-                  {/* Quick WhatsApp Inquiry on Hover */}
-                  <a
-                    href={`https://wa.me/${BRAND_CONFIG.whatsapp.number}?text=${encodeURIComponent(
-                      `Hi Abhinandan Gifting! I would like to order "${product.title}" (${BRAND_CONFIG.currency}${product.price}). Please share details.`
-                    )}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="absolute inset-x-8 bottom-6 py-2.5 rounded-full bg-[#FB1443] hover:bg-[#E00E39] text-white font-bold text-xs uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-md shadow-[#FB1443]/20 hover:scale-105 active:scale-95 text-center"
-                  >
-                    Order on WhatsApp
-                  </a>
-                </div>
-
-                {/* Product Title (Chely Sen Bold Uppercase) */}
-                <h3 className="font-sans font-bold text-sm sm:text-base tracking-wider text-stone-900 uppercase mb-1.5 group-hover:text-[#8A67B7] transition-colors">
-                  {product.title}
-                </h3>
-
-                {/* Price (Chely Berry / Pink Color) */}
-                <p className="font-sans font-bold text-base sm:text-lg text-[#A31352]">
-                  {BRAND_CONFIG.currency}{product.price.toLocaleString()}
-                </p>
-
-              </div>
-            ))}
-          </div>
-
-        </div>
-
       </div>
-    </section>
+    </motion.div>
   );
 }
 
+export default function ChelyProductsShowcase() {
+  const [activeIdx, setActiveIdx] = useState(1);
+  const [selectedIdx, setSelectedIdx] = useState(null);
+  const [viewportMode, setViewportMode] = useState('desktop');
+
+  const sectionRef = useRef(null);
+
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start end', 'end start'],
+  });
+
+  // Zero-rerender GPU scroll-linked exit depth & perspective pitch into Customize section
+  const deckScale = useTransform(scrollYProgress, [0, 0.35, 0.82, 1], [1, 1, 1, 0.94]);
+  const deckY = useTransform(scrollYProgress, [0, 0.35, 1], [0, 0, -24]);
+  const deckRotateX = useTransform(scrollYProgress, [0, 0.35, 1], [0, 0, -5]);
+
+  useEffect(() => {
+    const updateSize = () => {
+      const w = window.innerWidth;
+      if (w < 640) setViewportMode('mobile');
+      else if (w < 1024) setViewportMode('tablet');
+      else setViewportMode('desktop');
+    };
+    updateSize();
+    window.addEventListener('resize', updateSize, { passive: true });
+    return () => window.removeEventListener('resize', updateSize);
+  }, []);
+
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (selectedIdx !== null) {
+        if (e.key === 'Escape') setSelectedIdx(null);
+        else if (e.key === 'ArrowRight') setSelectedIdx((prev) => (prev + 1) % PRODUCTS.length);
+        else if (e.key === 'ArrowLeft')
+          setSelectedIdx((prev) => (prev - 1 + PRODUCTS.length) % PRODUCTS.length);
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [selectedIdx]);
+
+  const handlePrev = () => setActiveIdx((prev) => (prev - 1 + PRODUCTS.length) % PRODUCTS.length);
+  const handleNext = () => setActiveIdx((prev) => (prev + 1) % PRODUCTS.length);
+
+  const isMobile = viewportMode === 'mobile';
+  const isTablet = viewportMode === 'tablet';
+  const selectedProduct = selectedIdx !== null ? PRODUCTS[selectedIdx] : null;
+
+  return (
+    <section
+      ref={sectionRef}
+      id="hampers"
+      className="bg-[#FAF7F2] relative z-10 py-8 sm:py-11 min-h-[calc(100vh-76px)] flex flex-col justify-center overflow-hidden"
+    >
+      <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
+        {/* Shared Signature Animated Heading */}
+        <SectionHeading className="max-w-3xl mx-auto mb-5 sm:mb-7 pt-1 sm:pt-0">
+          Explore our best gift hampers
+        </SectionHeading>
+
+        {/* Interactive 3D Curved Orbit Deck (Supports Touch Swipe + Click + Scroll Depth) */}
+        <motion.div
+          style={{
+            scale: deckScale,
+            y: deckY,
+            rotateX: deckRotateX,
+            transformPerspective: 1400,
+          }}
+          onPanEnd={(_, info) => {
+            if (info.offset.x < -40 || info.velocity.x < -280) handleNext();
+            else if (info.offset.x > 40 || info.velocity.x > 280) handlePrev();
+          }}
+          className="relative w-full h-[365px] sm:h-[395px] lg:h-[410px] flex justify-center touch-pan-y will-change-transform"
+        >
+          {PRODUCTS.map((product, idx) => {
+            const offset = getCircularOffset(idx, activeIdx, PRODUCTS.length);
+            return (
+              <ArchCoverflowCard
+                key={product.id}
+                product={product}
+                offset={offset}
+                isMobile={isMobile}
+                isTablet={isTablet}
+                onSelectCenter={() => setActiveIdx(idx)}
+                onInspect={() => setSelectedIdx(idx)}
+              />
+            );
+          })}
+        </motion.div>
+
+        {/* Interactive Orbital Navigation & Mini Photo Thumbnail Dock */}
+        <div className="mt-2 sm:mt-4 flex items-center justify-center gap-2 sm:gap-4 relative z-30">
+          <button
+            type="button"
+            onClick={handlePrev}
+            aria-label="Previous hamper"
+            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white hover:bg-[#FB1443] text-[#351C4E] hover:text-white border border-stone-200 flex items-center justify-center shadow-sm transition-all duration-200 active:scale-90 shrink-0"
+          >
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
+
+          <div className="flex items-center gap-1.5 sm:gap-2.5 bg-white/85 backdrop-blur-sm px-2.5 sm:px-3 py-1.5 rounded-full border border-stone-200/80 shadow-sm">
+            {PRODUCTS.map((p, idx) => {
+              const active = idx === activeIdx;
+              return (
+                <button
+                  key={`thumb-${p.id}`}
+                  type="button"
+                  onClick={() => setActiveIdx(idx)}
+                  aria-label={p.title}
+                  className={`relative rounded-full overflow-hidden transition-all duration-300 ${
+                    active
+                      ? 'w-8 h-8 sm:w-10 sm:h-10 ring-2 ring-[#FB1443] ring-offset-2 ring-offset-white scale-105'
+                      : 'w-6 h-6 sm:w-8 sm:h-8 opacity-65 hover:opacity-100 hover:scale-105'
+                  }`}
+                >
+                  <img
+                    src={p.image}
+                    onError={(e) => {
+                      e.currentTarget.src = p.fallbackImage;
+                    }}
+                    alt={p.title}
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+              );
+            })}
+          </div>
+
+          <button
+            type="button"
+            onClick={handleNext}
+            aria-label="Next hamper"
+            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white hover:bg-[#FB1443] text-[#351C4E] hover:text-white border border-stone-200 flex items-center justify-center shadow-sm transition-all duration-200 active:scale-90 shrink-0"
+          >
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Minimal Photo Zoom-In Lightbox Modal rendered cleanly at body root */}
+      {typeof document !== 'undefined' &&
+        createPortal(
+          <AnimatePresence>
+            {selectedProduct && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setSelectedIdx(null)}
+                className="fixed inset-0 z-[95] bg-stone-900/75 backdrop-blur-md flex items-center justify-center p-4"
+              >
+                <motion.div
+                  key={selectedProduct.id}
+                  initial={{ scale: 0.88, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.92, opacity: 0 }}
+                  transition={{ type: 'spring', damping: 24, stiffness: 280 }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="relative max-w-md w-full bg-[#FAF7F2] rounded-3xl overflow-hidden shadow-2xl border border-white p-5 sm:p-6 text-center space-y-4"
+                >
+                  <button
+                    type="button"
+                    onClick={() => setSelectedIdx(null)}
+                    className="absolute top-3.5 right-3.5 z-20 w-8 h-8 rounded-full bg-white text-stone-700 hover:bg-[#FB1443] hover:text-white flex items-center justify-center shadow-sm transition-colors"
+                    aria-label="Close modal"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+
+                  <div className="relative rounded-t-[130px] rounded-b-2xl overflow-hidden bg-white p-2 shadow-sm">
+                    <img
+                      src={selectedProduct.image}
+                      onError={(e) => {
+                        e.currentTarget.src = selectedProduct.fallbackImage;
+                      }}
+                      alt={selectedProduct.title}
+                      className="w-full h-72 object-cover rounded-t-[122px] rounded-b-xl"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSelectedIdx((prev) => (prev - 1 + PRODUCTS.length) % PRODUCTS.length)
+                      }
+                      aria-label="Previous image"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 hover:bg-[#FB1443] text-[#351C4E] hover:text-white flex items-center justify-center shadow-md transition-colors"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedIdx((prev) => (prev + 1) % PRODUCTS.length)}
+                      aria-label="Next image"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 hover:bg-[#FB1443] text-[#351C4E] hover:text-white flex items-center justify-center shadow-md transition-colors"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div>
+                    <h3 className="font-sans font-bold text-base tracking-wider text-stone-900 uppercase mb-1">
+                      {selectedProduct.title}
+                    </h3>
+                    <p className="font-sans font-bold text-lg text-[#A31352] mb-4">
+                      {BRAND_CONFIG.currency}
+                      {selectedProduct.price.toLocaleString()}
+                    </p>
+
+                    <a
+                      href={`https://wa.me/${BRAND_CONFIG.whatsapp.number}?text=${encodeURIComponent(
+                        `Hi Abhinandan Gifting! I would like to order "${selectedProduct.title}" (${BRAND_CONFIG.currency}${selectedProduct.price}). Please share details.`
+                      )}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-full py-3 rounded-full bg-[#FB1443] hover:bg-[#E00E39] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-md shadow-[#FB1443]/25 transition-transform active:scale-95"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      <span>Order on WhatsApp</span>
+                    </a>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>,
+          document.body
+        )}
+    </section>
+  );
+}

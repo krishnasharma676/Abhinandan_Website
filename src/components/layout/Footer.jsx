@@ -1,28 +1,28 @@
 import React from 'react';
-import {
-  Mail,
-  Phone,
-  ShieldCheck,
-  Truck
-} from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Mail, Phone, ShieldCheck, Truck } from 'lucide-react';
 import { InstagramIcon, FacebookIcon, LinkedinIcon } from '../common/SocialIcons';
 import { BRAND_CONFIG } from '../../config/brand';
 
 export default function Footer() {
   return (
     <footer className="bg-[#FAF7F2] text-stone-600 text-xs font-sans border-t border-stone-200/80">
-      
-      {/* Main Footer Container */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
+      {/* Main Footer Container with Smooth Scroll Reveal */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.12 }}
+        transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12"
+      >
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-10">
-          
           {/* Brand Info (Full width on mobile, Col span 2 on lg) */}
           <div className="col-span-2 lg:col-span-2 space-y-4">
-            <a href="#hero" className="inline-block">
+            <a href="#hero" className="inline-block group">
               <img
                 src={BRAND_CONFIG.logo || '/assets/logo.png'}
                 alt={BRAND_CONFIG.name}
-                className="h-10 sm:h-12 w-auto object-contain"
+                className="h-10 sm:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
               />
             </a>
 
@@ -31,33 +31,24 @@ export default function Footer() {
             </p>
 
             <div className="pt-2 flex items-center gap-2.5">
-              <a
-                href={BRAND_CONFIG.social.instagram}
-                target="_blank"
-                rel="noreferrer"
-                className="w-9 h-9 rounded-full bg-white hover:bg-[#FB1443] text-stone-700 hover:text-white flex items-center justify-center transition-all shadow-sm border border-stone-200/80"
-                aria-label="Instagram"
-              >
-                <InstagramIcon className="w-4 h-4" />
-              </a>
-              <a
-                href={BRAND_CONFIG.social.facebook}
-                target="_blank"
-                rel="noreferrer"
-                className="w-9 h-9 rounded-full bg-white hover:bg-[#FB1443] text-stone-700 hover:text-white flex items-center justify-center transition-all shadow-sm border border-stone-200/80"
-                aria-label="Facebook"
-              >
-                <FacebookIcon className="w-4 h-4" />
-              </a>
-              <a
-                href={BRAND_CONFIG.social.whatsapp}
-                target="_blank"
-                rel="noreferrer"
-                className="w-9 h-9 rounded-full bg-white hover:bg-[#FB1443] text-stone-700 hover:text-white flex items-center justify-center transition-all shadow-sm border border-stone-200/80"
-                aria-label="WhatsApp"
-              >
-                <LinkedinIcon className="w-4 h-4" />
-              </a>
+              {[
+                { href: BRAND_CONFIG.social.instagram, Icon: InstagramIcon, label: 'Instagram' },
+                { href: BRAND_CONFIG.social.facebook, Icon: FacebookIcon, label: 'Facebook' },
+                { href: BRAND_CONFIG.social.whatsapp, Icon: LinkedinIcon, label: 'WhatsApp' },
+              ].map(({ href, Icon, label }) => (
+                <motion.a
+                  key={label}
+                  whileHover={{ y: -3, scale: 1.08 }}
+                  whileTap={{ scale: 0.94 }}
+                  href={href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-9 h-9 rounded-full bg-white hover:bg-[#FB1443] text-stone-700 hover:text-white flex items-center justify-center transition-colors shadow-sm border border-stone-200/80"
+                  aria-label={label}
+                >
+                  <Icon className="w-4 h-4" />
+                </motion.a>
+              ))}
             </div>
 
             <div className="pt-3 flex flex-col sm:flex-row items-start sm:items-center gap-4 text-xs text-stone-700">
@@ -123,7 +114,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Gift Hampers (Right Column on Mobile, Static Text - Non Clickable) */}
+          {/* Gift Hampers (Right Column on Mobile, Static Non-Clickable Text) */}
           <div className="col-span-1 space-y-4">
             <h4 className="font-serif text-lg font-medium text-[#FB1443] tracking-wide">
               Gift Hampers
@@ -134,7 +125,7 @@ export default function Footer() {
                 'Festive & Diwali Hampers',
                 'Birthday & Anniversary Hampers',
                 'Corporate Gift Hampers',
-                'Custom Gift Boxes'
+                'Custom Gift Boxes',
               ].map((item, i) => (
                 <li key={i} className="text-stone-600 font-normal cursor-default">
                   {item}
@@ -148,9 +139,7 @@ export default function Footer() {
             <h4 className="font-serif text-lg font-medium text-[#FB1443] tracking-wide">
               Contact Us
             </h4>
-            <p className="text-xs text-stone-600">
-              {BRAND_CONFIG.contact.address}
-            </p>
+            <p className="text-xs text-stone-600">{BRAND_CONFIG.contact.address}</p>
             <div className="pt-1 text-xs text-stone-600 space-y-2">
               <p className="flex items-center gap-2 font-medium">
                 <Mail className="w-4 h-4 text-[#FB1443] shrink-0" />
@@ -162,9 +151,8 @@ export default function Footer() {
               </p>
             </div>
           </div>
-
         </div>
-      </div>
+      </motion.div>
 
       {/* Luxury Charcoal/Black Bottom Copyright Strip */}
       <div className="bg-[#1C1917] py-4 text-stone-400 text-xs">
@@ -186,7 +174,6 @@ export default function Footer() {
           </div>
         </div>
       </div>
-
     </footer>
   );
 }
