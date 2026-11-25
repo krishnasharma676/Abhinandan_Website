@@ -94,7 +94,7 @@ export default function LenisSectionTransition({
             trigger: el,
             start: 'top 95%',
             end: 'top 42%',
-            scrub: 0.42,
+            scrub: 0.15,
             invalidateOnRefresh: true,
           },
         });
@@ -119,7 +119,7 @@ export default function LenisSectionTransition({
             trigger: el,
             start: 'top 96%',
             end: 'top 28%',
-            scrub: 0.45,
+            scrub: 0.15,
             invalidateOnRefresh: true,
           },
         });
@@ -164,7 +164,7 @@ export default function LenisSectionTransition({
           trigger: el,
           start: 'top 96%',
           end: 'top 50%',
-          scrub: 0.42,
+          scrub: 0.15,
           invalidateOnRefresh: true,
         },
       });

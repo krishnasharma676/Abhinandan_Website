@@ -369,7 +369,7 @@ export default function ChelyCustomHamperBuilder() {
                   transition={{ duration: 0.22 }}
                   className="overflow-hidden border-t border-stone-200/70 bg-white"
                 >
-                  <div data-lenis-prevent className="p-2.5 max-h-36 overflow-y-auto space-y-1.5">
+                  <div className="p-2.5 max-h-36 overflow-y-auto space-y-1.5">
                     {packedItems.length === 0 ? (
                       <p className="text-center text-[11px] text-stone-400 py-2">
                         No treats packed yet.
@@ -941,7 +941,7 @@ export default function ChelyCustomHamperBuilder() {
                   </div>
 
                   {/* Compact Packed Treats Tray List */}
-                  <div data-lenis-prevent className="p-3 bg-white min-h-[96px] max-h-[140px] overflow-y-auto space-y-1.5">
+                  <div className="p-3 bg-white min-h-[96px] max-h-[140px] overflow-y-auto space-y-1.5">
                     {packedItems.length === 0 ? (
                       <div className="h-20 flex flex-col items-center justify-center text-center text-stone-400">
                         <p className="text-xs font-medium text-stone-500">

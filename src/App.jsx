@@ -48,28 +48,10 @@ export default function App() {
     }
 
     const lenis = new Lenis({
-      duration: 1.55,
+      duration: 1.0,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
-      wheelMultiplier: 0.56,
-      syncTouch: true,
-      touchMultiplier: 0.62,
-      syncTouchLerp: 0.048,
-      touchInertiaExponent: 0.86,
-      allowNestedScroll: true,
-      virtualScroll: (data) => {
-        const { deltaX, deltaY, event } = data;
-        // Preserve horizontal touch swipes for carousels, 3D gift box, and Instagram fan deck
-        if (event?.type?.startsWith('touch') && Math.abs(deltaX) > Math.abs(deltaY)) {
-          return false;
-        }
-        // Softly cap extreme swipe/wheel bursts so transitions always play out smoothly
-        const maxStep = event?.type?.startsWith('touch') ? 34 : 76;
-        if (Math.abs(deltaY) > maxStep) {
-          data.deltaY = Math.sign(deltaY) * maxStep;
-        }
-        return true;
-      },
+      syncTouch: false,
     });
 
     window.__lenis = lenis;
@@ -110,7 +92,7 @@ export default function App() {
         const heroTrigger = ScrollTrigger.getById('hero-stage');
         if (heroTrigger) {
           e.preventDefault();
-          lenis.scrollTo(heroTrigger.end + 2, { duration: 1.45 });
+          lenis.scrollTo(heroTrigger.end + 2, { duration: 1.05 });
           return;
         }
       }
@@ -118,14 +100,14 @@ export default function App() {
         const storyTrigger = ScrollTrigger.getById('story-journey-stage');
         if (storyTrigger) {
           e.preventDefault();
-          lenis.scrollTo(storyTrigger.start + 2, { duration: 1.45 });
+          lenis.scrollTo(storyTrigger.start + 2, { duration: 1.05 });
           return;
         }
       }
       const target = document.querySelector(hash);
       if (!target) return;
       e.preventDefault();
-      lenis.scrollTo(target, { offset: -76, duration: 1.45 });
+      lenis.scrollTo(target, { offset: -76, duration: 1.05 });
     };
     document.addEventListener('click', handleAnchorClick);
 

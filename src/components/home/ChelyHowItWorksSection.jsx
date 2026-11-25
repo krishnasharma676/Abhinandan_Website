@@ -112,7 +112,7 @@ function SpineProgress({ sectionRef }) {
             trigger: triggerEl,
             start: 'top 65%',
             end: 'bottom 38%',
-            scrub: 0.38,
+            scrub: 0.15,
             invalidateOnRefresh: true,
           },
         }
@@ -331,7 +331,7 @@ export default function ChelyHowItWorksSection() {
             trigger: sectionEl,
             start: 'bottom 88%',
             end: 'bottom 18%',
-            scrub: 0.38,
+            scrub: 0.15,
             invalidateOnRefresh: true,
           },
         }

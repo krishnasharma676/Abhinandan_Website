@@ -81,10 +81,10 @@ export default function HeroSection({ children }) {
           id: 'hero-stage',
           trigger: triggerEl,
           start: 'top 76px',
-          end: () => (window.innerWidth < 768 ? '+=1560' : '+=1850'),
+          end: () => (window.innerWidth < 768 ? '+=1320' : '+=1620'),
           pin: true,
           pinSpacing: true,
-          scrub: 0.45,
+          scrub: 0.15,
           anticipatePin: 1,
           refreshPriority: 10,
           invalidateOnRefresh: true,
@@ -223,12 +223,12 @@ export default function HeroSection({ children }) {
     e.preventDefault();
     const heroTrigger = ScrollTrigger.getById('hero-stage');
     if (heroTrigger && window.__lenis) {
-      window.__lenis.scrollTo(heroTrigger.end + 2, { duration: 1.45 });
+      window.__lenis.scrollTo(heroTrigger.end + 2, { duration: 1.05 });
       return;
     }
     const el = document.querySelector('#hampers');
     if (el && window.__lenis) {
-      window.__lenis.scrollTo(el, { offset: -76, duration: 1.45 });
+      window.__lenis.scrollTo(el, { offset: -76, duration: 1.05 });
     } else if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
     }
